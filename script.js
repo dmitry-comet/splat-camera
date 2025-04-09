@@ -37,8 +37,8 @@ var createScene = function () {
     BABYLON.Vector3.Zero(),
     scene
   );
-  camera.attachControl(canvas, true);
-
+  camera.speed = 0.1;
+  
   // This attaches the camera to the canvas
   camera.attachControl(canvas, true);
 
