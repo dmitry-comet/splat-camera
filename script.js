@@ -1,3 +1,10 @@
+// script.js
+// Wait for DOM + dependencies to load
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('jQuery is ready!', window.$);  // Test global access
+  // Your code here...
+});
+
 var canvas = document.getElementById("renderCanvas");
 
 var startRenderLoop = function (engine, canvas) {
