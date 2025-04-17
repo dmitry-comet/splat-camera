@@ -24,11 +24,15 @@ var createDefaultEngine = function () {
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false,
+      createGround: false,
+      skyboxSize: false,
     });
 };
 var createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
+  
+  var
 
     var camera = new BABYLON.ArcRotateCamera(
         "camera",
