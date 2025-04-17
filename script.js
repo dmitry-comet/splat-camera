@@ -24,15 +24,13 @@ var createDefaultEngine = function () {
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false,
-      createGround: false,
-      skyboxSize: false,
+        createGround: false,
+        skyboxSize: false,
     });
 };
 var createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
-  
-  var
 
     var camera = new BABYLON.ArcRotateCamera(
         "camera",
@@ -48,7 +46,7 @@ var createScene = function () {
     camera.attachControl(canvas, true);
 
     BABYLON.ImportMeshAsync(
-        "https://cdn.glitch.me/55dd5f2f-fec4-4917-ab9b-93997457dadd/MKT200_2.splat?v=1744215332160",
+        "https://cdn.glitch.me/55dd5f2f-fec4-4917-ab9b-93997457dadd/DollFOX04152025.splat?v=1744901360473",
         scene
     ).then((result) => {
         splat = result.meshes[0];
@@ -100,6 +98,7 @@ window.initFunction = async function () {
     if (!engine) throw "engine should not be null.";
     startRenderLoop(engine, canvas);
     window.scene = createScene();
+    window.scene.clearColor = new BABYLON.Color4(0, 0, 0, 1.0); // RGBA (0-1 range)
 };
 initFunction().then(() => {
     sceneToRender = scene;
