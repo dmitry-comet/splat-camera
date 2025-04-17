@@ -1,3 +1,5 @@
+// import * as BABYLON from 'babylonjs';
+
 // script.js
 // Wait for DOM + dependencies to load
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,13 +21,34 @@ var engine = null;
 var scene = null;
 var sceneToRender = null;
 var splat = null;
+
+var loadingScreenDiv = window.document.getElementById("loadingScreen");
+
+function customLoadingScreen() {
+    console.log("customLoadingScreen creation");
+}
+customLoadingScreen.prototype.displayLoadingUI = function () {
+    console.log("customLoadingScreen loading");
+
+    if (loadingScreenDiv != null) {
+        loadingScreenDiv.innerHTML = "loading...";
+    }
+};
+customLoadingScreen.prototype.hideLoadingUI = function () {
+    console.log("customLoadingScreen loaded");
+
+    if (loadingScreenDiv != null) {
+        loadingScreenDiv.style.display = "none";
+    }
+};
+
+var loadingScreen = new customLoadingScreen();
+
 var createDefaultEngine = function () {
     return new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false,
-        createGround: false,
-        skyboxSize: false,
     });
 };
 var createScene = function () {
@@ -47,27 +70,32 @@ var createScene = function () {
 
     BABYLON.ImportMeshAsync(
         "https://cdn.glitch.me/55dd5f2f-fec4-4917-ab9b-93997457dadd/DollFOX04172025.splat?v=1744902168764",
-        scene
+        scene,
     ).then((result) => {
         splat = result.meshes[0];
+
+        engine.hideLoadingUI();
     });
 
-    // Add a button click listener
-    document.getElementById("screenshotBtn").addEventListener("click", () => {
-        if (splat) {
-            // Assuming you have a scene and a mesh you want to capture
-            captureSplatExactly(scene, splat, "splat-isolation.png");
-        }
+    const screenshotButton = document.getElementById("screenshotBtn");
 
-        // if (engine && camera) {
-        //     // Capture screenshot
-        //     BABYLON.Tools.CreateScreenshot(engine, camera, { precision: 1 }, (data) => {
-        //         // `data` is a base64-encoded image (PNG by default)
-        //         downloadScreenshot(data);
-        //     });
-        // }
-    });
+    if (screenshotButton != null) {
+        // Add a button click listener
+        screenshotButton.addEventListener("click", () => {
+            if (splat) {
+                // Assuming you have a scene and a mesh you want to capture
+                captureSplatExactly(scene, splat, "splat.png");
+            }
 
+            // if (engine && camera) {
+            //     // Capture screenshot
+            //     BABYLON.Tools.CreateScreenshot(engine, camera, { precision: 1 }, (data) => {
+            //         // `data` is a base64-encoded image (PNG by default)
+            //         downloadScreenshot(data);
+            //     });
+            // }
+        });
+    }
     // // Function to download the screenshot
     // function downloadScreenshot(dataUrl) {
     //     const link = document.createElement("a");
@@ -91,6 +119,9 @@ window.initFunction = async function () {
     };
 
     window.engine = await asyncEngineCreation();
+    engine.loadingScreen = loadingScreen;
+    engine.displayLoadingUI();
+
 
     const engineOptions = window.engine.getCreationOptions?.();
     if (!engineOptions || engineOptions.audioEngine !== false) {
@@ -273,3 +304,4 @@ function flipPixelsVertical(pixelData, width, height) {
     }
     return flipped;
 }
+
