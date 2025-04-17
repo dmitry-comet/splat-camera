@@ -267,7 +267,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
             a.download = fileName;
             a.click();
             console.log(`Success! Saved cropped splat as ${fileName}`);
-        }, 'image/png');
+        }, 'image/png', 1);
 
         return canvas.toDataURL();
 
