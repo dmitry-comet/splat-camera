@@ -70,11 +70,11 @@ var createScene = function () {
     // Optional: Add inertia for smoother zoom
     camera.inertia = 0; // 0-1 range (1 = no inertia)
 
-    camera.pinchPrecision = 1000; // Default is 1000 (higher = less sensitive)
+    camera.pinchPrecision = 100; // Default is 1000 (higher = less sensitive)
 
     // Optional: Add limits to zoom
-    camera.lowerRadiusLimit = 2;  // Minimum zoom distance
-    camera.upperRadiusLimit = 10; // Maximum zoom distance
+    camera.lowerRadiusLimit = 3;  // Minimum zoom distance
+    camera.upperRadiusLimit = 20; // Maximum zoom distance
 
     // This attaches the camera to the canvas
     camera.attachControl(canvas, true);
