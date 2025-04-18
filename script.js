@@ -65,6 +65,17 @@ var createScene = function () {
     );
     camera.speed = 0.1;
 
+    // Reduce wheel sensitivity
+    camera.wheelPrecision = 50; // Default is 3 (lower = more sensitive, higher = less sensitive)
+    // Optional: Add inertia for smoother zoom
+    camera.inertia = 1; // 0-1 range (1 = no inertia)
+
+    camera.pinchPrecision = 10000; // Default is 1000 (higher = less sensitive)
+
+    // Optional: Add limits to zoom
+    camera.lowerRadiusLimit = 2;  // Minimum zoom distance
+    camera.upperRadiusLimit = 50; // Maximum zoom distance
+
     // This attaches the camera to the canvas
     camera.attachControl(canvas, true);
 
@@ -228,7 +239,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
 
         console.log('[4/4] Rendering and cropping...');
 
-        await new Promise((resolve) => {
+        await /** @type {Promise<void>} */(new Promise((resolve) => {
             renderTarget.onAfterRenderObservable.addOnce(async () => {
                 // Verify bounds are reasonable
                 console.log('Bounds:', intBounds);
@@ -258,7 +269,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                 resolve();
             });
             scene.render();
-        });
+        }));
 
         // Final download
         canvas.toBlob(blob => {
