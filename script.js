@@ -66,7 +66,7 @@ var createScene = function () {
     camera.speed = 0.1;
 
     // Reduce wheel sensitivity
-    camera.wheelPrecision = 50; // Default is 3 (lower = more sensitive, higher = less sensitive)
+    camera.wheelPrecision = 30; // Default is 3 (lower = more sensitive, higher = less sensitive)
     // Optional: Add inertia for smoother zoom
     camera.inertia = 0; // 0-1 range (1 = no inertia)
 
