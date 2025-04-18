@@ -68,13 +68,13 @@ var createScene = function () {
     // Reduce wheel sensitivity
     camera.wheelPrecision = 50; // Default is 3 (lower = more sensitive, higher = less sensitive)
     // Optional: Add inertia for smoother zoom
-    camera.inertia = 1; // 0-1 range (1 = no inertia)
+    camera.inertia = 0; // 0-1 range (1 = no inertia)
 
-    camera.pinchPrecision = 10000; // Default is 1000 (higher = less sensitive)
+    camera.pinchPrecision = 1000; // Default is 1000 (higher = less sensitive)
 
     // Optional: Add limits to zoom
     camera.lowerRadiusLimit = 2;  // Minimum zoom distance
-    camera.upperRadiusLimit = 50; // Maximum zoom distance
+    camera.upperRadiusLimit = 10; // Maximum zoom distance
 
     // This attaches the camera to the canvas
     camera.attachControl(canvas, true);
