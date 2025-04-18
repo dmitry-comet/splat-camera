@@ -80,7 +80,7 @@ var createScene = function () {
     camera.attachControl(canvas, true);
 
     BABYLON.ImportMeshAsync(
-        "https://cdn.glitch.me/55dd5f2f-fec4-4917-ab9b-93997457dadd/BlytheCloud_3dgs.splat?v=1745000684987",
+        "https://cdn.glitch.global/55dd5f2f-fec4-4917-ab9b-93997457dadd/BlytheCloud176_3dgs.splat?v=1745001576577",
         scene,
     ).then((result) => {
         splat = result.meshes[0];
