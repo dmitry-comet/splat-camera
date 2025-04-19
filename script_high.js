@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Your code here...
 });
 
+var img = new Image;
+
+img.onload = function(){
+};
+
+img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
+
+
 var canvas = document.getElementById("renderCanvas");
 
 var startRenderLoop = function (engine, canvas) {
@@ -233,9 +241,17 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
 
         console.log('[3/4] Creating temporary canvas...');
         const canvas = document.createElement('canvas');
+      
+        const ctx = canvas.getContext('2d');
+      
+        var img = new Image;
+        img.onload = function(){
+          ctx.drawImage(img,0,0); // Or at whatever offset you like
+        };
+        img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
         canvas.width = intBounds.width;
         canvas.height = intBounds.height;
-        const ctx = canvas.getContext('2d');
+        
 
         console.log('[4/4] Rendering and cropping...');
 
@@ -265,6 +281,8 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     intBounds.width,
                     intBounds.height
                 );
+                ctx.drawImage(img,0,0); // Or at whatever offset you like
+
                 ctx.putImageData(imageData, 0, 0);
                 resolve();
             });
