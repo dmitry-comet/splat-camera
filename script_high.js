@@ -1,6 +1,7 @@
+var videoCanvas;
 
 {
-  // import * as BABYLON from 'babylonjs';
+  
 const video = window.video = document.createElement('video');
 video.setAttribute('autoplay',true);
 video.setAttribute('playsinline',true);
@@ -15,6 +16,8 @@ videoScreenDiv.appendChild(canvas);
 
 canvas.width = 360;
 canvas.height = 480;
+  
+  videoCanvas = canvas;
 
 const constraints = {
   audio: false,
@@ -39,6 +42,16 @@ function handleError(error) {
 navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
 }
 
+var canvas = document.getElementById("renderCanvas");
+
+var startRenderLoop = function (engine, canvas) {
+    engine.runRenderLoop(function () {
+        if (sceneToRender && sceneToRender.activeCamera) {
+            sceneToRender.render();
+        }
+    });
+};
+
 var engine = null;
 var scene = null;
 var sceneToRender = null;
@@ -46,7 +59,7 @@ var splat = null;
 
 var loadingScreenDiv = window.document.getElementById("loadingScreen");
 
-// loadingScreenDiv.style.display = "none";
+loadingScreenDiv.style.display = "none";
 
 
 function customLoadingScreen() {
@@ -293,14 +306,14 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     pixels,
                 );
               
-               var imgCanvas = document.createElement('canvas');
-              imgCanvas.width = img.width;
-              imgCanvas.height = img.height;
-                var imgContext = imgCanvas.getContext('2d');
+              //  var imgCanvas = document.createElement('canvas');
+              // imgCanvas.width = img.width;
+              // imgCanvas.height = img.height;
+                var imgContext = videoCanvas.getContext('2d');
                 await imgContext.drawImage(img, 0, 0);
-                var imgPixels = imgContext.getImageData(0, 0, img.width, img.height).data;
+                var imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
               
-              console.log("W: " + img.width + ", H: " + img.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
+              console.log("W: " + videoCanvas.width + ", H: " + videoCanvas.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
               
               var pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height)
                 
@@ -311,10 +324,9 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     var b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
                     var a = pixelsBlended[y * intBounds.width * 4 + x * 4 + 3];
                     
-                    var r2 = imgPixels[y * img.width * 4 + x * 4];
-                    var g2 = imgPixels[y * img.width * 4 + x * 4 + 1];
-                    var b2 = imgPixels[y * img.width * 4 + x * 4 + 2];
-                    
+                    var r2 = imgPixels[y * videoCanvas.width * 4 + x * 4];
+                    var g2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 1];
+                    var b2 = imgPixels[y * videoCanvas
                     pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
                     pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;
                     pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = (b2 * (255.0 - a) + b * a) / 256;
