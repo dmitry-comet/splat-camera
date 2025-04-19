@@ -310,7 +310,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
               // imgCanvas.width = img.width;
               // imgCanvas.height = img.height;
                 var imgContext = videoCanvas.getContext('2d');
-                await imgContext.drawImage(img, 0, 0);
+                // await imgContext.drawImage(videoCanvas, 0, 0);
                 var imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
               
               console.log("W: " + videoCanvas.width + ", H: " + videoCanvas.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
@@ -326,7 +326,8 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     
                     var r2 = imgPixels[y * videoCanvas.width * 4 + x * 4];
                     var g2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 1];
-                    var b2 = imgPixels[y * videoCanvas
+                    var b2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 2];
+                    
                     pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
                     pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;
                     pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = (b2 * (255.0 - a) + b * a) / 256;
