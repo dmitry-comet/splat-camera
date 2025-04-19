@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Your code here...
 });
 
-var img = new Image;
+// var img = new Image;
 
-img.onload = function(){
-};
+// img.onload = function(){
+// };
 
-img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
+// img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
 
 
 var canvas = document.getElementById("renderCanvas");
@@ -244,11 +244,11 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
       
         const ctx = canvas.getContext('2d');
       
-        var img = new Image;
-        img.onload = function(){
-          ctx.drawImage(img,0,0); // Or at whatever offset you like
-        };
-        img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
+        // var img = new Image;
+        // img.onload = function(){
+        //   ctx.drawImage(img,0,0); // Or at whatever offset you like
+        // };
+        // img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
         canvas.width = intBounds.width;
         canvas.height = intBounds.height;
         
@@ -275,13 +275,27 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     intBounds.height,
                     pixels,
                 );
+              
+                for (var y = 0; y < 100; y++) {
+                  for (var x = 0; x < 100; x++) {
+                    var r = pixels[y * intBounds.width * 4 + x * 4];
+                    var g = pixels[y * intBounds.width * 4 + x * 4 + 1];
+                    var b = pixels[y * intBounds.width * 4 + x * 4 + 2];
+                    var a = pixels[y * intBounds.width * 4 + x * 4 + 3];
+                    
+                    pixels[y * intBounds.width * 4 + x * 4] = 255;
+                    pixels[y * intBounds.width * 4 + x * 4 + 1] = 0;
+                    pixels[y * intBounds.width * 4 + x * 4 + 2] = 0;
+                    pixels[y * intBounds.width * 4 + x * 4 + 3] = 0;
+                  }
+                }
 
                 const imageData = new ImageData(
                     new Uint8ClampedArray(flipPixelsVertical(pixels, intBounds.width, intBounds.height)),
                     intBounds.width,
                     intBounds.height
                 );
-                ctx.drawImage(img,0,0); // Or at whatever offset you like
+                //ctx.drawImage(img,0,0); // Or at whatever offset you like
 
                 ctx.putImageData(imageData, 0, 0);
                 resolve();
