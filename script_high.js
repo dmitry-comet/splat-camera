@@ -13,6 +13,7 @@ img.onload = function(){
 };
 
 img.src = "https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665";
+img.setAttribute('crossOrigin', '');
 
 
 var canvas = document.getElementById("renderCanvas");
@@ -278,29 +279,33 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
               
                var imgCanvas = document.createElement('canvas');
                 var imgContext = imgCanvas.getContext('2d');
-                imgContext.drawImage(img, 0, 0);
+                await imgContext.drawImage(img, 0, 0);
                 var imgPixels = imgContext.getImageData(0, 0, img.width, img.height).data;
               
-                for (var y = 0; y < intBounds.height; y++) {
+              console.log("W: " + img.width + ", H: " + img.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
+              
+              var pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height)
+                
+              for (var y = 0; y < intBounds.height; y++) {
                   for (var x = 0; x < intBounds.width; x++) {
-                    var r = pixels[y * intBounds.width * 4 + x * 4];
-                    var g = pixels[y * intBounds.width * 4 + x * 4 + 1];
-                    var b = pixels[y * intBounds.width * 4 + x * 4 + 2];
-                    var a = pixels[y * intBounds.width * 4 + x * 4 + 3];
+                    var r = pixelsBlended[y * intBounds.width * 4 + x * 4];
+                    var g = pixelsBlended[y * intBounds.width * 4 + x * 4 + 1];
+                    var b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
+                    var a = pixelsBlended[y * intBounds.width * 4 + x * 4 + 3];
                     
-                    var r2 = imgPixels[y * img.width * 3 + x * 3];
-                    var g2 = imgPixels[y * img.width * 3 + x * 3 + 1];
-                    var b2 = imgPixels[y * img.width * 3 + x * 3 + 2];
+                    var r2 = imgPixels[y * img.width * 4 + x * 4];
+                    var g2 = imgPixels[y * img.width * 4 + x * 4 + 1];
+                    var b2 = imgPixels[y * img.width * 4 + x * 4 + 2];
                     
-                    pixels[y * intBounds.width * 4 + x * 4] = r2;
-                    pixels[y * intBounds.width * 4 + x * 4 + 1] = g2;
-                    pixels[y * intBounds.width * 4 + x * 4 + 2] = b2;
-                    pixels[y * intBounds.width * 4 + x * 4 + 3] = 255;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4] = 255;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = g;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = b;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 3] = 255;
                   }
                 }
 
                 const imageData = new ImageData(
-                    new Uint8ClampedArray(flipPixelsVertical(pixels, intBounds.width, intBounds.height)),
+                    new Uint8ClampedArray(pixelsBlended),
                     intBounds.width,
                     intBounds.height
                 );
