@@ -1,13 +1,20 @@
-// import * as BABYLON from 'babylonjs';
+
+{
+  // import * as BABYLON from 'babylonjs';
 const video = window.video = document.createElement('video');
 video.setAttribute('autoplay',true);
 video.setAttribute('playsinline',true);
 document.body.appendChild(video);
 
 const canvas = window.canvas = document.createElement('canvas');
-document.body.appendChild(canvas);
-canvas.width = 480;
-canvas.height = 360;
+
+var videoScreenDiv = window.document.getElementById("videoScreen");
+
+videoScreenDiv.appendChild(canvas);
+
+
+canvas.width = 360;
+canvas.height = 480;
 
 const constraints = {
   audio: false,
@@ -30,14 +37,17 @@ function handleError(error) {
 }
 
 navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+}
 
-/*
 var engine = null;
 var scene = null;
 var sceneToRender = null;
 var splat = null;
 
 var loadingScreenDiv = window.document.getElementById("loadingScreen");
+
+// loadingScreenDiv.style.display = "none";
+
 
 function customLoadingScreen() {
     console.log("customLoadingScreen creation");
@@ -262,7 +272,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
 
         console.log('[4/4] Rendering and cropping...');
 
-        await / ** @type {Promise<void>} * /(new Promise((resolve) => {
+        await /** @type {Promise<void>} */(new Promise((resolve) => {
             renderTarget.onAfterRenderObservable.addOnce(async () => {
                 // Verify bounds are reasonable
                 console.log('Bounds:', intBounds);
@@ -369,5 +379,3 @@ function flipPixelsVertical(pixelData, width, height) {
     }
     return flipped;
 }
-
-*/
