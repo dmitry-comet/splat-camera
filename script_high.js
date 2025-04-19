@@ -140,7 +140,7 @@ window.initFunction = async function () {
     if (!engine) throw "engine should not be null.";
     startRenderLoop(engine, canvas);
     window.scene = createScene();
-    window.scene.clearColor = new BABYLON.Color4(0, 0, 0, 1.0); // RGBA (0-1 range)
+    window.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.0); // RGBA (0-1 range)
 };
 initFunction().then(() => {
     sceneToRender = scene;
