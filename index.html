@@ -1,39 +1,53 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" href="style.css">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Styled Links</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif; /* Choose a more modern font */
+        }
 
-    <title>MKT200_2 Splat</title>
+        .link-container {
+            display: flex;
+            flex-direction: column; /* Arrange links vertically */
+            align-items: center; /* Center links horizontally */
+        }
 
-    <!-- Babylon.js -->
-<!--     <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
-    <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
-    <script src="https://cdn.babylonjs.com/recast.js"></script>
-    <script src="https://cdn.babylonjs.com/ammo.js"></script>
-    <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
-    <script src="https://cdn.babylonjs.com/cannon.js"></script>
-    <script src="https://cdn.babylonjs.com/Oimo.js"></script>
-    <script src="https://cdn.babylonjs.com/earcut.min.js"></script>
-    <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
-    <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
-    <script src="https://cdn.babylonjs.com/postProcessesLibrary/babylonjs.postProcess.min.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.js"></script>
-    <script src="https://cdn.babylonjs.com/serializers/babylonjs.serializers.min.js"></script>
-    <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
-    <script src="https://cdn.babylonjs.com/addons/babylonjs.addons.min.js"></script>
-    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
--->
-  </head>
+        .link-container a {
+            display: block; /* Make each link take up a full line */
+            color: #eee; /* Light gray text */
+            background-color: #333; /* Dark gray background for the link */
+            padding: 15px 30px; /* Add padding for a larger clickable area */
+            margin-bottom: 10px; /* Add spacing between links */
+            text-decoration: none; /* Remove underlines */
+            border-radius: 5px; /* Add rounded corners */
+            transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+            width: 150px; /* Set a fixed width for consistent button size */
+            text-align: center; /* Center text within the link button */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
+        }
 
-  <body>
-    <!-- <div id="loadingScreen">loading...</div>
-    <button id="screenshotBtn" class="big-symbol-btn">📸</button>
-    <div id="canvasZone"><canvas id="renderCanvas"/></div>
-    <script src="script.js" defer></script> -->
-    <a href="low.html">Low</a>
-    <a href="mid.html">Mid</a>
-    <a href="low.html">High</a>
-  </body>
+        .link-container a:hover {
+            background-color: #555; /* Darker gray on hover */
+            color: #fff; /* White text on hover */
+            box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.5); /* Slightly larger shadow on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="link-container">
+        <a href="low.html">Low</a>
+        <a href="mid.html">Mid</a>
+        <a href="high.html">Hi</a>
+    </div>
+</body>
 </html>
