@@ -7,12 +7,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Your code here...
 });
 
-// var img = new Image;
+var img = new Image;
 
-// img.onload = function(){
-// };
+img.onload = function(){
+};
 
-// img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
+img.src = "https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665";
 
 
 var canvas = document.getElementById("renderCanvas");
@@ -276,17 +276,26 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     pixels,
                 );
               
-                for (var y = 0; y < 100; y++) {
-                  for (var x = 0; x < 100; x++) {
+               var imgCanvas = document.createElement('canvas');
+                var imgContext = imgCanvas.getContext('2d');
+                imgContext.drawImage(img, 0, 0);
+                var imgPixels = imgContext.getImageData(0, 0, img.width, img.height).data;
+              
+                for (var y = 0; y < intBounds.height; y++) {
+                  for (var x = 0; x < intBounds.width; x++) {
                     var r = pixels[y * intBounds.width * 4 + x * 4];
                     var g = pixels[y * intBounds.width * 4 + x * 4 + 1];
                     var b = pixels[y * intBounds.width * 4 + x * 4 + 2];
                     var a = pixels[y * intBounds.width * 4 + x * 4 + 3];
                     
-                    pixels[y * intBounds.width * 4 + x * 4] = 255;
-                    pixels[y * intBounds.width * 4 + x * 4 + 1] = 0;
-                    pixels[y * intBounds.width * 4 + x * 4 + 2] = 0;
-                    pixels[y * intBounds.width * 4 + x * 4 + 3] = 0;
+                    var r2 = imgPixels[y * img.width * 3 + x * 3];
+                    var g2 = imgPixels[y * img.width * 3 + x * 3 + 1];
+                    var b2 = imgPixels[y * img.width * 3 + x * 3 + 2];
+                    
+                    pixels[y * intBounds.width * 4 + x * 4] = r2;
+                    pixels[y * intBounds.width * 4 + x * 4 + 1] = g2;
+                    pixels[y * intBounds.width * 4 + x * 4 + 2] = b2;
+                    pixels[y * intBounds.width * 4 + x * 4 + 3] = 255;
                   }
                 }
 
