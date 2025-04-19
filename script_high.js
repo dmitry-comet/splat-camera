@@ -278,6 +278,8 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                 );
               
                var imgCanvas = document.createElement('canvas');
+              imgCanvas.width = img.width;
+              imgCanvas.height = img.height;
                 var imgContext = imgCanvas.getContext('2d');
                 await imgContext.drawImage(img, 0, 0);
                 var imgPixels = imgContext.getImageData(0, 0, img.width, img.height).data;
@@ -286,8 +288,8 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
               
               var pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height)
                 
-              for (var y = 0; y < intBounds.height; y++) {
-                  for (var x = 0; x < intBounds.width; x++) {
+              for (var y = 0; y < 565; y++) {
+                  for (var x = 0; x < 428; x++) {
                     var r = pixelsBlended[y * intBounds.width * 4 + x * 4];
                     var g = pixelsBlended[y * intBounds.width * 4 + x * 4 + 1];
                     var b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
@@ -297,9 +299,9 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     var g2 = imgPixels[y * img.width * 4 + x * 4 + 1];
                     var b2 = imgPixels[y * img.width * 4 + x * 4 + 2];
                     
-                    pixelsBlended[y * intBounds.width * 4 + x * 4] = 255;
-                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = g;
-                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = b;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = (b2 * (255.0 - a) + b * a) / 256;
                     pixelsBlended[y * intBounds.width * 4 + x * 4 + 3] = 255;
                   }
                 }
