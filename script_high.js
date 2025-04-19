@@ -1,31 +1,37 @@
 // import * as BABYLON from 'babylonjs';
+const video = window.video = document.createElement('video');
+video.setAttribute('autoplay',true);
+video.setAttribute('playsinline',true);
+document.body.appendChild(video);
 
-// script.js
-// Wait for DOM + dependencies to load
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('jQuery is ready!', window.$);  // Test global access
-    // Your code here...
-});
+const canvas = window.canvas = document.createElement('canvas');
+document.body.appendChild(canvas);
+canvas.width = 480;
+canvas.height = 360;
 
-var img = new Image;
-
-img.onload = function(){
+const constraints = {
+  audio: false,
+  video: true
 };
 
-img.src = "https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665";
-img.setAttribute('crossOrigin', '');
+function handleSuccess(stream) {
+  window.stream = stream; // make stream available to browser console
+  video.srcObject = stream;
+  requestAnimationFrame(() => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    }
+  );
+}
 
+function handleError(error) {
+  console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+}
 
-var canvas = document.getElementById("renderCanvas");
+navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
 
-var startRenderLoop = function (engine, canvas) {
-    engine.runRenderLoop(function () {
-        if (sceneToRender && sceneToRender.activeCamera) {
-            sceneToRender.render();
-        }
-    });
-};
-
+/*
 var engine = null;
 var scene = null;
 var sceneToRender = null;
@@ -256,7 +262,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
 
         console.log('[4/4] Rendering and cropping...');
 
-        await /** @type {Promise<void>} */(new Promise((resolve) => {
+        await / ** @type {Promise<void>} * /(new Promise((resolve) => {
             renderTarget.onAfterRenderObservable.addOnce(async () => {
                 // Verify bounds are reasonable
                 console.log('Bounds:', intBounds);
@@ -364,3 +370,4 @@ function flipPixelsVertical(pixelData, width, height) {
     return flipped;
 }
 
+*/
