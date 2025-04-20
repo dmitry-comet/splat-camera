@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <link rel="stylesheet" href="style.css">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
-    <title>MKT200_2 Splat</title>
+    <title>Blythe</title>
 
-     <!-- Babylon.js -->
- <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
+    <!-- Babylon.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.6.2/dat.gui.min.js"></script>
     <script src="https://assets.babylonjs.com/generated/Assets.js"></script>
     <script src="https://cdn.babylonjs.com/recast.js"></script>
     <script src="https://cdn.babylonjs.com/ammo.js"></script>
@@ -24,18 +24,23 @@
     <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
     <script src="https://cdn.babylonjs.com/addons/babylonjs.addons.min.js"></script>
     <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
- 
-  </head>
 
-  <body><!-- style="background-image: url('https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665');background-repeat: no-repeat;background-attachment: fixed;background-size: cover;"> -->
-     <div id="loadingScreen">loading...</div> 
-    <div id="videoScreen"></div>
-   
-      <button id="screenshotBtn" class="big-symbol-btn">📸</button>
-    <div id="canvasZone"><canvas id="renderCanvas"/></div>
-   
-    
-    
-    <script src="script_high.js" defer></script>
-  </body>
+</head>
+
+<body>
+<!-- style="background-image: url('https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665');background-repeat: no-repeat;background-attachment: fixed;background-size: cover;"> -->
+
+<input id="splat_url" type="hidden"
+       value="https://cdn.glitch.me/af6af8b8-f22f-47a4-8b6e-ce50adfcfd0c/BlytheCleaned_low.splat?v=1745067063532"/>
+<div id="loadingScreen">loading...</div>
+<div id="videoScreen"></div>
+
+<button id="screenshotBtn" class="big-symbol-btn">📸</button>
+<div id="canvasZone">
+    <canvas id="renderCanvas"></canvas>
+</div>
+
+
+<script src="babylon_camera.js" defer></script>
+</body>
 </html>
