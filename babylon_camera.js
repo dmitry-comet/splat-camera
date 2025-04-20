@@ -1,61 +1,60 @@
-let videoCanvas;
+var videoCanvas;
 
 {
+  
+const video = window.video = document.createElement('video');
+video.setAttribute('autoplay',true);
+video.setAttribute('playsinline',true);
+document.body.appendChild(video);
 
-    const video = window.video = document.createElement('video');
-    video.setAttribute('autoplay', true);
-    video.setAttribute('playsinline', true);
-    document.body.appendChild(video);
+const canvas = window.canvas = document.createElement('canvas');
 
-    const canvas = window.canvas = document.createElement('canvas');
+var videoScreenDiv = window.document.getElementById("videoScreen");
 
-    const videoScreenDiv = window.document.getElementById("videoScreen");
-
-    videoScreenDiv.appendChild(canvas);
+videoScreenDiv.appendChild(canvas);
 
 
-    canvas.width = 360;
-    canvas.height = 480;
+canvas.width = 360;
+canvas.height = 480;
+  
+  videoCanvas = canvas;
 
-    videoCanvas = canvas;
+const constraints = {
+  audio: false,
+  video: true
+};
 
-    const constraints = {
-        audio: false,
-        video: true
-    };
-
-    function frame() {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-        requestAnimationFrame(() => {
-            frame();
-        });
-    }
-
-    function handleSuccess(stream) {
-        window.stream = stream; // make stream available to browser console
-        video.srcObject = stream;
-
-        requestAnimationFrame(() => {
-            frame();
-        });
-    }
-
-    function handleError(error) {
-        console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
-    }
-
-    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+  function frame() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(() => {
+      frame();
+    });
+  }
+function handleSuccess(stream) {
+  window.stream = stream; // make stream available to browser console
+  video.srcObject = stream;
+  
+  requestAnimationFrame(() => {
+      frame();
+    });
 }
 
-const loadingScreenDiv = window.document.getElementById("loadingScreen");
+function handleError(error) {
+  console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
+}
+
+navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+}
+
+var loadingScreenDiv = window.document.getElementById("loadingScreen");
 
 loadingScreenDiv.style.display = "none";
 
 var canvas = document.getElementById("renderCanvas");
 
-const startRenderLoop = function (engine, canvas) {
+var startRenderLoop = function (engine, canvas) {
     engine.runRenderLoop(function () {
         if (sceneToRender && sceneToRender.activeCamera) {
             sceneToRender.render();
@@ -64,15 +63,18 @@ const startRenderLoop = function (engine, canvas) {
 };
 
 var engine = null;
-const scene = null;
+var scene = null;
 var sceneToRender = null;
-let splat = null;
+var splat = null;
+
+
+
+
 
 
 function customLoadingScreen() {
     console.log("customLoadingScreen creation");
 }
-
 customLoadingScreen.prototype.displayLoadingUI = function () {
     console.log("customLoadingScreen loading");
 
@@ -88,20 +90,20 @@ customLoadingScreen.prototype.hideLoadingUI = function () {
     }
 };
 
-const loadingScreen = new customLoadingScreen();
+var loadingScreen = new customLoadingScreen();
 
-const createDefaultEngine = function () {
+var createDefaultEngine = function () {
     return new BABYLON.Engine(canvas, true, {
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false,
     });
 };
-const createScene = function () {
+var createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
-    const scene = new BABYLON.Scene(engine);
+    var scene = new BABYLON.Scene(engine);
 
-    const camera = new BABYLON.ArcRotateCamera(
+    var camera = new BABYLON.ArcRotateCamera(
         "camera",
         0,
         1,
@@ -126,7 +128,7 @@ const createScene = function () {
     camera.attachControl(canvas, true);
 
     BABYLON.ImportMeshAsync(
-        window.document.getElementById("splat_url").value,
+        "https://cdn.glitch.me/af6af8b8-f22f-47a4-8b6e-ce50adfcfd0c/BlytheCleaned_low.splat?v=1745067063532",
         scene,
     ).then((result) => {
         splat = result.meshes[0];
@@ -164,7 +166,7 @@ const createScene = function () {
     return scene;
 };
 window.initFunction = async function () {
-    const asyncEngineCreation = async function () {
+    var asyncEngineCreation = async function () {
         try {
             return createDefaultEngine();
         } catch (e) {
@@ -184,9 +186,9 @@ window.initFunction = async function () {
     if (!engineOptions || engineOptions.audioEngine !== false) {
     }
     if (!engine) throw "engine should not be null.";
-
-    startRenderLoop(engine, canvas);
-
+    
+  startRenderLoop(engine, canvas);
+  
     window.scene = createScene();
     window.scene.clearColor = new BABYLON.Color4(0, 0, 0, 0.0); // RGBA (0-1 range)
 };
@@ -270,7 +272,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
         console.log('[2/4] Creating render target...');
         renderTarget = new BABYLON.RenderTargetTexture(
             "splatCapture",
-            {width: engine.getRenderWidth(), height: engine.getRenderHeight()},
+            { width: engine.getRenderWidth(), height: engine.getRenderHeight() },
             scene,
             false,
             true, // Enable depth buffer
@@ -281,9 +283,9 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
 
         console.log('[3/4] Creating temporary canvas...');
         const canvas = document.createElement('canvas');
-
+      
         const ctx = canvas.getContext('2d');
-
+      
         // var img = new Image;
         // img.onload = function(){
         //   ctx.drawImage(img,0,0); // Or at whatever offset you like
@@ -291,7 +293,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
         // img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
         canvas.width = intBounds.width;
         canvas.height = intBounds.height;
-
+        
 
         console.log('[4/4] Rendering and cropping...');
 
@@ -306,7 +308,7 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                 // Verify camera is correct
                 console.log('Active camera:', camera.position);
 
-                let pixels = new Uint8Array(4 * intBounds.width * intBounds.height);
+                var pixels = new Uint8Array(4 * intBounds.width * intBounds.height);
 
                 pixels = await engine.readPixels(
                     intBounds.x,
@@ -315,34 +317,34 @@ async function captureSplatExactly(scene, splatMesh, fileName = "splat-capture.p
                     intBounds.height,
                     pixels,
                 );
-
-                //  var imgCanvas = document.createElement('canvas');
-                // imgCanvas.width = img.width;
-                // imgCanvas.height = img.height;
-                const imgContext = videoCanvas.getContext('2d');
+              
+              //  var imgCanvas = document.createElement('canvas');
+              // imgCanvas.width = img.width;
+              // imgCanvas.height = img.height;
+                var imgContext = videoCanvas.getContext('2d');
                 // await imgContext.drawImage(videoCanvas, 0, 0);
-                const imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
-
-                console.log("W: " + videoCanvas.width + ", H: " + videoCanvas.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
-
-                const pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height);
-
-                for (let y = 0; y < 565; y++) {
-                    for (let x = 0; x < 428; x++) {
-                        const r = pixelsBlended[y * intBounds.width * 4 + x * 4];
-                        const g = pixelsBlended[y * intBounds.width * 4 + x * 4 + 1];
-                        const b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
-                        const a = pixelsBlended[y * intBounds.width * 4 + x * 4 + 3];
-
-                        const r2 = imgPixels[y * videoCanvas.width * 4 + x * 4];
-                        const g2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 1];
-                        const b2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 2];
-
-                        pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
-                        pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;
-                        pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = (b2 * (255.0 - a) + b * a) / 256;
-                        pixelsBlended[y * intBounds.width * 4 + x * 4 + 3] = 255;
-                    }
+                var imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
+              
+              console.log("W: " + videoCanvas.width + ", H: " + videoCanvas.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
+              
+              var pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height)
+                
+              for (var y = 0; y < 565; y++) {
+                  for (var x = 0; x < 428; x++) {
+                    var r = pixelsBlended[y * intBounds.width * 4 + x * 4];
+                    var g = pixelsBlended[y * intBounds.width * 4 + x * 4 + 1];
+                    var b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
+                    var a = pixelsBlended[y * intBounds.width * 4 + x * 4 + 3];
+                    
+                    var r2 = imgPixels[y * videoCanvas.width * 4 + x * 4];
+                    var g2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 1];
+                    var b2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 2];
+                    
+                    pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 2] = (b2 * (255.0 - a) + b * a) / 256;
+                    pixelsBlended[y * intBounds.width * 4 + x * 4 + 3] = 255;
+                  }
                 }
 
                 const imageData = new ImageData(
