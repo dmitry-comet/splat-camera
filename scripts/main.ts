@@ -233,23 +233,29 @@ const createScene = function () {
         fs = false;
         if (document.exitFullscreen) {
             document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) { /* Safari */
-            document.webkitExitFullscreen();
-        } else if (document.msExitFullscreen) { /* IE11 */
-            document.msExitFullscreen();
+        } else { // @ts-ignore
+            if (document.webkitExitFullscreen) { /* Safari */
+                // @ts-ignore
+                document.webkitExitFullscreen();
+            } else { // @ts-ignore
+                if (document.msExitFullscreen) { /* IE11 */
+                    // @ts-ignore
+                    document.msExitFullscreen();
+                }
+            }
         }
     }
 
 
-    // canvas.addEventListener("pointermove", onPointerMove, false);
-    // canvas.addEventListener("pointerdown", onPointerDown, false);
-    // canvas.addEventListener("pointerup", onPointerUp, false);
-    //
-    // scene.onDispose = function () {
-    //     canvas.removeEventListener("pointermove", onPointerMove);
-    //     canvas.removeEventListener("pointerdown", onPointerDown, false);
-    //     canvas.removeEventListener("pointerup", onPointerUp, false);
-    // };
+    scene.onDispose = function () {
+        canvas.onpointerdown = null;
+        canvas.onpointermove = null;
+
+        canvas.onpointerup = null;
+        canvas.onpointercancel = null;
+        canvas.onpointerout = null;
+        canvas.onpointerleave = null;
+    };
 
     init_gestures();
 
