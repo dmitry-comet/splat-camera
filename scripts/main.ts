@@ -125,7 +125,6 @@ function renderScene() {
 
     splat_frame_id = requestAnimationFrame(() => {
         if (sceneToRender != null && sceneToRender.activeCamera) {
-            engine?.clear(new Color4(1, 1, 1, 0), true, true, true);
             sceneToRender.render(false, true);
         }
     });

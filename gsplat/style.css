@@ -67,3 +67,40 @@ progress::-webkit-progress-value {
 progress::-moz-progress-bar {
     background-color: #eee;
 }
+
+#screenshotBtn {
+    z-index: 1;
+    bottom: 2%;
+    left: 45%;
+    background: #FFFFFF50;
+    position: absolute;
+    height: 10%;
+}
+
+#fullscreenBtn {
+    z-index: 1;
+    bottom: 2%;
+    right: 2%;
+    background: #FFFFFF50;
+    position: absolute;
+    height: 10%;
+}
+
+.big-symbol-btn {
+    color: white;
+    padding: 12px 24px;
+    margin: 0;
+    border-radius: 4px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 48px;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.big-symbol-btn:hover {
+    transform: scale(1.1);
+    color: #4285f4;
+    /* Changes symbol color */
+}
