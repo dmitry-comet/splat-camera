@@ -1,16 +1,40 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    function adopt(value) {
+        return value instanceof P ? value : new P(function (resolve) {
+            resolve(value);
+        });
+    }
+
     return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+
+        function step(result) {
+            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { ArcRotateCamera, Color4, Engine, ImportMeshAsync, RenderTargetTexture, Scene, Vector3 } from "@babylonjs/core";
-import { registerBuiltInLoaders } from "@babylonjs/loaders/dynamic";
+import {ArcRotateCamera, Color4, Engine, ImportMeshAsync, RenderTargetTexture, Scene, Vector3} from "@babylonjs/core";
+import {registerBuiltInLoaders} from "@babylonjs/loaders/dynamic";
+
 registerBuiltInLoaders();
-import { DefaultLoadingScreen } from "@babylonjs/core/Loading/loadingScreen";
+import {DefaultLoadingScreen} from "@babylonjs/core/Loading/loadingScreen";
+
 let videoCanvas;
 {
     const video = window.video = document.createElement('video');
@@ -27,6 +51,7 @@ let videoCanvas;
         audio: false,
         video: true
     };
+
     function frame() {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -35,6 +60,7 @@ let videoCanvas;
             frame();
         });
     }
+
     function handleSuccess(stream) {
         window.stream = stream;
         video.srcObject = stream;
@@ -42,9 +68,11 @@ let videoCanvas;
             frame();
         });
     }
+
     function handleError(error) {
         console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
     }
+
     navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
 }
 const loadingScreenDiv = window.document.getElementById("loadingScreen");
@@ -53,7 +81,7 @@ const canvas = document.getElementById("renderCanvas");
 let engine = null;
 let scene = null;
 let sceneToRender = null;
-let splat;
+let splat: GaussianSplattingMesh;
 const startRenderLoop = function (engine, _canvas) {
     engine.runRenderLoop(function () {
         if (sceneToRender && sceneToRender.activeCamera) {
@@ -81,6 +109,13 @@ const createScene = function () {
     camera.attachControl(canvas, true);
     ImportMeshAsync(document.getElementById("splat_url").value, scene).then((result) => {
         splat = result.meshes[0];
+
+        // splat.material.forceDepthWrite = true;
+        //
+        // splat.renderingGroupId = 1;
+        //
+        // scene.setRenderingAutoClearDepthStencil(1, false, false, false);
+
         engine.hideLoadingUI();
     });
     const screenshotButton = document.getElementById("screenshotBtn");
@@ -93,6 +128,7 @@ const createScene = function () {
     }
     return scene;
 };
+
 function initFunction() {
     return __awaiter(this, void 0, void 0, function* () {
         var _a;
@@ -100,8 +136,7 @@ function initFunction() {
             return __awaiter(this, void 0, void 0, function* () {
                 try {
                     return createDefaultEngine();
-                }
-                catch (e) {
+                } catch (e) {
                     console.log("the available createEngine function failed. Creating the default engine instead");
                     return createDefaultEngine();
                 }
@@ -115,17 +150,19 @@ function initFunction() {
         }
         if (!engine)
             throw "engine should not be null.";
-        startRenderLoop(engine, canvas);
+        //startRenderLoop(engine, canvas);
         scene = createScene();
-        scene.clearColor = new Color4(0, 0, 0, 0.0);
+        //scene.clearColor = new Color4(255, 255, 255, 1.0);
     });
 }
+
 initFunction().then(() => {
     sceneToRender = scene;
 });
 window.addEventListener("resize", function () {
     engine === null || engine === void 0 ? void 0 : engine.resize();
 });
+
 function getSplatScreenBounds(scene, splatMesh) {
     const engine = scene.getEngine();
     const camera = scene.activeCamera;
@@ -160,8 +197,7 @@ function getSplatScreenBounds(scene, splatMesh) {
             width: Math.min(engine.getRenderWidth(), maxX + padding) - Math.max(0, minX - padding),
             height: Math.min(engine.getRenderHeight(), maxY + padding) - Math.max(0, minY - padding)
         };
-    }
-    else {
+    } else {
         return {
             x: 0,
             y: 0,
@@ -170,6 +206,7 @@ function getSplatScreenBounds(scene, splatMesh) {
         };
     }
 }
+
 function captureSplatExactly(scene_1, splatMesh_1) {
     return __awaiter(this, arguments, void 0, function* (scene, splatMesh, fileName = "splat-capture.png") {
         const engine = scene.getEngine();
@@ -186,7 +223,10 @@ function captureSplatExactly(scene_1, splatMesh_1) {
             };
             console.log('Absolute crop bounds:', intBounds);
             console.log('[2/4] Creating render target...');
-            renderTarget = new RenderTargetTexture("splatCapture", { width: engine.getRenderWidth(), height: engine.getRenderHeight() }, scene, false, true, Engine.TEXTURETYPE_UNSIGNED_BYTE);
+            renderTarget = new RenderTargetTexture("splatCapture", {
+                width: engine.getRenderWidth(),
+                height: engine.getRenderHeight()
+            }, scene, false, true, Engine.TEXTURETYPE_UNSIGNED_BYTE);
             renderTarget.renderList = [splatMesh];
             scene.customRenderTargets.push(renderTarget);
             console.log('[3/4] Creating temporary canvas...');
@@ -236,12 +276,10 @@ function captureSplatExactly(scene_1, splatMesh_1) {
                 console.log(`Success! Saved cropped splat as ${fileName}`);
             }, 'image/png', 1);
             return canvas.toDataURL();
-        }
-        catch (error) {
+        } catch (error) {
             console.error('CAPTURE FAILED:', error);
             throw error;
-        }
-        finally {
+        } finally {
             if (renderTarget != null) {
                 renderTarget.dispose();
                 const index = scene.customRenderTargets.indexOf(renderTarget);
@@ -251,6 +289,7 @@ function captureSplatExactly(scene_1, splatMesh_1) {
         }
     });
 }
+
 function flipPixelsVertical(pixelData, width, height) {
     const flipped = new Uint8Array(pixelData.byteLength);
     const rowSize = width * 4;

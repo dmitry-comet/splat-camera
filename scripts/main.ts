@@ -7,27 +7,29 @@ import {
     RenderTargetTexture,
     Scene,
     Vector3
-} from "@babylonjs/core";
+} from '@babylonjs/core';
 
-import {registerBuiltInLoaders} from "@babylonjs/loaders/dynamic";
+import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
 
 registerBuiltInLoaders();
 
-import {DefaultLoadingScreen} from "@babylonjs/core/Loading/loadingScreen";
+import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
 
 let videoCanvas: HTMLCanvasElement | null = null;
 
 {
-    const video = document.createElement('video');
-    video.setAttribute('autoplay', String(true));
-    video.setAttribute('playsinline', String(true));
+    const video: HTMLVideoElement = document.createElement('video');
+    video.disablePictureInPicture = true;
+    video.autoplay = true;
+    video.controls = false;
+    video.playsInline = true;
 
     document.body.appendChild(video);
     video.style.display = 'none';
 
     videoCanvas = document.createElement('canvas');
 
-    const videoScreenDiv = window.document.getElementById("videoScreen")!;
+    const videoScreenDiv = window.document.getElementById('videoScreen')!;
 
     videoScreenDiv.appendChild(videoCanvas);
 
@@ -36,17 +38,48 @@ let videoCanvas: HTMLCanvasElement | null = null;
         video: true
     };
 
-    function frame() {
-        videoCanvas!.width = video.videoWidth;
-        videoCanvas!.height = video.videoHeight;
-        videoCanvas!.getContext("2d")!.drawImage(video, 0, 0, videoCanvas!.width, videoCanvas!.height);
+    function videoFrame() {
+
+
+        let srcW = video.videoWidth;
+        let srcH = video.videoHeight;
+        const dstW = renderCanvas.width;
+        const dstH = renderCanvas.height;
+
+        const srcAspect = srcW / srcH;
+        const dstAspect = dstW / dstH;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (srcAspect < dstAspect) {
+            srcH = dstW / srcAspect;
+            srcW = dstW;
+            console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
+        } else {
+            srcW = dstH * srcAspect;
+            srcH = dstH;
+            offsetX = (srcW - dstW) / 2;
+            offsetY = (srcH - dstH) / 2;
+            //console.log(`2: srcAspect = ${srcAspect}, dstAspect = ${dstAspect} srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}`);
+            console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
+        }
+
+        videoCanvas!.width = srcW;
+        videoCanvas!.height = srcH;
+
+        videoCanvas!.getContext('2d')!.drawImage(video,
+            (srcW - dstW) / 2,
+            (srcH - dstH) / 2,
+            dstW,
+            dstH);
+
 
         if (video_frame_id != null) {
             cancelAnimationFrame(video_frame_id);
         }
 
         video_frame_id = requestAnimationFrame(() => {
-            frame();
+            videoFrame();
         });
     }
 
@@ -58,7 +91,7 @@ let videoCanvas: HTMLCanvasElement | null = null;
         }
 
         splat_frame_id = requestAnimationFrame(() => {
-            frame();
+            videoFrame();
         })
     }
 
@@ -69,7 +102,7 @@ let videoCanvas: HTMLCanvasElement | null = null;
     navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
 }
 
-const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
+const renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
 
 let engine: Engine | null = null;
 
@@ -84,27 +117,36 @@ let video_frame_id: number | null = null;
 
 function renderScene() {
 
+    engine?.stopRenderLoop();
+
     if (splat_frame_id != null) {
         cancelAnimationFrame(splat_frame_id);
     }
 
     splat_frame_id = requestAnimationFrame(() => {
         if (sceneToRender != null && sceneToRender.activeCamera) {
+            engine?.clear(new Color4(1, 1, 1, 0), true, true, true);
             sceneToRender.render(false, true);
         }
     });
 }
 
 
-const loadingScreen = new DefaultLoadingScreen(canvas, "Loading", "black");
+const loadingScreen = new DefaultLoadingScreen(renderCanvas, 'Loading', 'black');
 
-const createDefaultEngine = function () {
-    return new Engine(canvas, true, {
+const createDefaultEngine = () =>
+    new Engine(renderCanvas, false, {
         preserveDrawingBuffer: true,
         stencil: true,
         disableWebGL2Support: false,
     });
-};
+
+
+function renderLoopFunc() {
+    if (sceneToRender != null && sceneToRender.activeCamera) {
+        sceneToRender.render(false, true);
+    }
+}
 
 const createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
@@ -112,7 +154,7 @@ const createScene = function () {
 
     /*
         const camera = new ArcRotateCamera(
-            "camera",
+            'camera',
             0,
             1,
             10,
@@ -138,17 +180,18 @@ const createScene = function () {
 
     */
 
-    const camera = new ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 0, 0), scene)
+    const camera = new ArcRotateCamera('Camera', -Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 0, 0), scene)
 
 //    camera.attachControl(canvas, true);
-    camera.useFramingBehavior = true;
 
-    if (camera.framingBehavior != null) {
-        camera.framingBehavior!.framingTime = 0;
-        camera.framingBehavior!.autoCorrectCameraLimitsAndSensibility = false;
-    }
+    camera.useFramingBehavior = false;
+//
+//     if (camera.framingBehavior != null) {
+//         camera.framingBehavior.framingTime = 0;
+//         camera.framingBehavior.autoCorrectCameraLimitsAndSensibility = false;
+//     }
 
-    //camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
+    // camera.mode = Camera.ORTHOGRAPHIC_CAMERA;
     // autoResizeOrthographicCamera();
     //
     //
@@ -169,24 +212,40 @@ const createScene = function () {
     // }
 
     ImportMeshAsync(
-        (document.getElementById("splat_url") as HTMLInputElement).value,
+        (document.getElementById('splat_url') as HTMLInputElement).value,
         scene,
     ).then((result) => {
         splat = result.meshes[0];
 
-        engine!.hideLoadingUI();
+        engine?.hideLoadingUI();
 
-        renderScene();
+        splat.position.set(0, 0, 0);
+        splat.scaling.set(1, 1, 1);
+        splat.rotation.set(0, 0, 0);
+
+        splat.material!.alphaMode = 2;
+        console.log(`splat.material.alphaMode: ${splat.material?.alphaMode}`);
+
+
+        // if (splat.material) {
+        //     splat.material.forceDepthWrite = false;
+        // }
+        //
+        splat.renderingGroupId = 1;
+        //
+        scene.setRenderingAutoClearDepthStencil(1, true, true, true);
+
+        engine?.runRenderLoop(renderLoopFunc);
     });
 
-    const screenshotButton = document.getElementById("screenshotBtn");
+    const screenshotButton = document.getElementById('screenshotBtn');
 
     if (screenshotButton != null) {
         // Add a button click listener
-        screenshotButton.addEventListener("click", async () => {
+        screenshotButton.addEventListener('click', async () => {
             if (splat) {
                 // Assuming you have a scene and a mesh you want to capture
-                await captureSplatExactly(scene, splat, "splat.png");
+                await captureSplatExactly(scene, splat, 'splat.png');
             }
         });
     }
@@ -194,13 +253,13 @@ const createScene = function () {
     /* Get the documentElement (<html>) to display the page in fullscreen */
     const documentElement = document.documentElement;
 
-    const fullscreenButton = document.getElementById("fullscreenBtn");
+    const fullscreenButton = document.getElementById('fullscreenBtn');
 
     let fs = false;
 
     if (fullscreenButton != null) {
         // Add a button click listener
-        fullscreenButton.addEventListener("click", async () => {
+        fullscreenButton.addEventListener('click', async () => {
             if (!fs)
                 openFullscreen();
             else
@@ -214,7 +273,7 @@ const createScene = function () {
 
         fs = true;
         if (documentElement.requestFullscreen) {
-            documentElement.requestFullscreen();
+            documentElement.requestFullscreen({navigationUI: 'hide'}).then();
         } else { // @ts-ignore
             if (documentElement.webkitRequestFullscreen) { /* Safari */
                 // @ts-ignore
@@ -232,7 +291,7 @@ const createScene = function () {
     function closeFullscreen() {
         fs = false;
         if (document.exitFullscreen) {
-            document.exitFullscreen();
+            document.exitFullscreen().then();
         } else { // @ts-ignore
             if (document.webkitExitFullscreen) { /* Safari */
                 // @ts-ignore
@@ -248,13 +307,13 @@ const createScene = function () {
 
 
     scene.onDispose = function () {
-        canvas.onpointerdown = null;
-        canvas.onpointermove = null;
+        renderCanvas.onpointerdown = null;
+        renderCanvas.onpointermove = null;
 
-        canvas.onpointerup = null;
-        canvas.onpointercancel = null;
-        canvas.onpointerout = null;
-        canvas.onpointerleave = null;
+        renderCanvas.onpointerup = null;
+        renderCanvas.onpointercancel = null;
+        renderCanvas.onpointerout = null;
+        renderCanvas.onpointerleave = null;
     };
 
     init_gestures();
@@ -308,15 +367,12 @@ function onPointerDown(ev: PointerEvent) {
 
     switch (ev.button) {
         case 0:
-            console.log("Left button clicked.");
             buttonState = ButtonClickState.left;
             break;
         case 1:
-            console.log("Middle button clicked.");
             buttonState = ButtonClickState.middle;
             break;
         case 2:
-            console.log("Right button clicked.");
             buttonState = ButtonClickState.right;
             break;
     }
@@ -329,7 +385,8 @@ function onPointerUp() {
 
 //////////////
 // Global vars to cache event state
-const evCache = new Array();
+let evCache: PointerEvent[] = [];
+
 let prevDiff = -1;
 
 function pointerdown_handler(ev: PointerEvent) {
@@ -347,10 +404,10 @@ function pointermove_handler(ev: PointerEvent) {
     // This function implements a 2-pointer horizontal pinch/zoom gesture.
     //
     // If the distance between the two pointers has increased (zoom in),
-    // the taget element's background is changed to "pink" and if the
-    // distance is decreasing (zoom out), the color is changed to "lightblue".
+    // the taget element's background is changed to 'pink' and if the
+    // distance is decreasing (zoom out), the color is changed to 'lightblue'.
     //
-    // This function sets the target element's border to "dashed" to visually
+    // This function sets the target element's border to 'dashed' to visually
     // indicate the pointer's target received a move event.
 
     // Find this event in the cache and update its record with this event
@@ -364,7 +421,7 @@ function pointermove_handler(ev: PointerEvent) {
     if (evCache.length == 1) {
         onPointerMove();
     }
-    // If two pointers are down, check for pinch gestures
+    // If 3 pointers are down, check for pinch gestures
     else if (evCache.length == 3) {
 
         const centerX = (evCache[2].clientX + evCache[1].clientX + evCache[0].clientX) / 2;
@@ -424,13 +481,13 @@ function remove_event(ev: PointerEvent) {
 
 function init_gestures() {
     // Install event handlers for the pointer target
-    canvas.onpointerdown = pointerdown_handler;
-    canvas.onpointermove = pointermove_handler;
+    renderCanvas.onpointerdown = pointerdown_handler;
+    renderCanvas.onpointermove = pointermove_handler;
 
-    canvas.onpointerup = pointerup_handler;
-    canvas.onpointercancel = pointerup_handler;
-    canvas.onpointerout = pointerup_handler;
-    canvas.onpointerleave = pointerup_handler;
+    renderCanvas.onpointerup = pointerup_handler;
+    renderCanvas.onpointercancel = pointerup_handler;
+    renderCanvas.onpointerout = pointerup_handler;
+    renderCanvas.onpointerleave = pointerup_handler;
 }
 
 ///////////////
@@ -442,7 +499,7 @@ async function initFunction() {
             return createDefaultEngine();
         } catch (e) {
             console.log(
-                "the available createEngine function failed. Creating the default engine instead"
+                'the available createEngine function failed. Creating the default engine instead'
             );
             return createDefaultEngine();
         }
@@ -453,25 +510,19 @@ async function initFunction() {
     engine.displayLoadingUI();
 
 
-    const engineOptions = engine.getCreationOptions?.();
-    if (!engineOptions || engineOptions.audioEngine !== false) {
-    }
-    if (!engine) throw "engine should not be null.";
-
-    // startRenderLoop(engine, canvas);
-
-
     scene = createScene();
+
+    scene.autoClearDepthAndStencil = true;
     scene.clearColor = new Color4(0, 0, 0, 0.0); // RGBA (0-1 range)
 }
 
 initFunction().then(() => {
     sceneToRender = scene;
-    renderScene();
+    // renderScene();
 });
 
 // Resize
-window.addEventListener("resize", function () {
+window.addEventListener('resize', function () {
     engine?.resize();
 });
 
@@ -536,7 +587,7 @@ function getSplatScreenBounds(scene: Scene, splatMesh: AbstractMesh) {
 }
 
 // Main capture function
-async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileName = "splat-capture.png") {
+async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileName = 'splat-capture.png') {
 
     if (videoCanvas == null) {
         return;
@@ -560,7 +611,7 @@ async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileNa
 
         console.log('[2/4] Creating render target...');
         renderTarget = new RenderTargetTexture(
-            "splatCapture",
+            'splatCapture',
             {width: engine.getRenderWidth(), height: engine.getRenderHeight()},
             scene,
             false,
@@ -579,7 +630,7 @@ async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileNa
         // img.onload = function(){
         //   ctx.drawImage(img,0,0); // Or at whatever offset you like
         // };
-        // img.src = "https://foto-interiors.com/uploads/photo/8/7448_l.jpg";
+        // img.src = 'https://foto-interiors.com/uploads/photo/8/7448_l.jpg';
         canvas.width = intBounds.width;
         canvas.height = intBounds.height;
 
@@ -611,7 +662,7 @@ async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileNa
                 // await imgContext.drawImage(videoCanvas, 0, 0);
                 const imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
 
-                console.log("W: " + videoCanvas.width + ", H: " + videoCanvas.height + ", 1: " + intBounds.width + ", 2: " + intBounds.height);
+                console.log(`W: ${videoCanvas.width}, H: ${videoCanvas.height}, 1: ${intBounds.width}, 2: ${intBounds.height}`);
 
                 const pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height);
 
