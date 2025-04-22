@@ -34,6 +34,39 @@ export class VideoEngine {
         };
 
         navigator.mediaDevices.getUserMedia(constraints).then(value => this.handleSuccess(value)).catch(reason => this.handleError(reason));
+
+        const facingModeButton = document.getElementById('facingModeButton') as HTMLButtonElement;
+
+        if (facingModeButton != null) {
+
+            const preventDefault = (e: Event) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+
+            // Add a button click listener
+            facingModeButton.addEventListener('click', async (ev: Event) => {
+                preventDefault(ev);
+
+                const tracks = (this.video.srcObject as MediaStream).getTracks();
+                tracks.forEach(track => track.stop());
+
+                this.facingMode = this.facingMode === 'user' ? 'environment' : 'user';
+
+                const constraints = {
+                    audio: false,
+                    video: this.supports!['facingMode'] ? {
+                        facingMode: {exact: this.facingMode},
+                    } : {}
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                this.video!.srcObject = null;
+                this.video!.srcObject = stream;
+                this.video!.play().then();
+            });
+        }
     }
 
     private videoFrame() {

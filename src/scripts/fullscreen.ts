@@ -59,7 +59,3 @@ export class FullscreenEngine {
     }
 }
 
-// const preventDefault = (e: Event) => {
-//     e.preventDefault();
-//     e.stopPropagation();
-// };
