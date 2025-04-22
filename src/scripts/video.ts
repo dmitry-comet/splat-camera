@@ -52,14 +52,14 @@ export class VideoEngine {
             offsetY = (srcH - srcW / dstAspect) / 2;
             srcH = srcW / dstAspect;
 
-            console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
+            // console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
         } else {
             offsetX = (srcW - srcH * dstAspect) / 2;
             offsetY = 0;
             srcW = srcH * dstAspect;
 
             //console.log(`2: srcAspect = ${srcAspect}, dstAspect = ${dstAspect} srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}`);
-            console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
+            // console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
         }
 
         dstW = 960;
