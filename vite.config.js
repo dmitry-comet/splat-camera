@@ -28,7 +28,7 @@ export default defineConfig({
         rollupOptions: {
             emptyOutDir: false, // you need to delete the output directory outside vite!
             input: {
-                main: './src/html/babylon.html',
+                main: './index.html',
                 babylon: './src/html/babylon.html',
                 gsplat: './src/html/gsplat.html',
                 gsplatv: './src/html/gsplatv.html',
