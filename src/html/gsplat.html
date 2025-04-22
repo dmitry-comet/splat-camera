@@ -4,17 +4,19 @@
     <meta charset="utf-8"/>
     <link rel="stylesheet" href="../css/gsplat.css"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>gsplat.ts - Viewer Demo</title>
 </head>
 <body>
 <!--    <body  style="background-image: url('https://avatars.mds.yandex.net/i?id=bcc4c656a046642e7e0e58129434e89c_l-4079525-images-thumbs&n=13');background-repeat: no-repeat;background-attachment: fixed;background-size: cover;">-->
-<!--    <input id="splat_url" type="hidden" value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/FOX0420.splat?v=1745227328070" />-->
-<input id="splat_url" type="hidden" value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/doll_lq.splat?v=1745067063532"/>
-
-<div id="videoScreen"></div>
+<!--    <input id="splat_url" type="hidden"-->
+<!--           value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/FOX0420.splat?v=1745227328070" />-->
+<input id="splat_url" type="hidden"
+       value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/doll_lq.splat?v=1745067063532"/>
 
 <div id="viewElement">
+
+<div id="videoScreen"></div>
 
 <div id="progress-container">
     <dialog open id="progress-dialog">
@@ -26,12 +28,11 @@
 </div>
 
 
-<canvas id="renderCanvas"></canvas>
+<canvas id="canvas"></canvas>
 <button id="screenshotBtn" class="big-symbol-btn">📸</button>
 <button id="fullscreenBtn" class="big-symbol-btn">[ ]</button>
-<button id="facingModeButton" class="big-symbol-btn">C</button>
 </div>
 
-<script src="/src/scripts/gsplat.ts" type="module"></script>
+<script src="../scripts/gsplat.ts" type="module"></script>
 </body>
 </html>

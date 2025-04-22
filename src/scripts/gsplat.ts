@@ -1,25 +1,24 @@
 import * as SPLAT from "gsplat";
 import {VideoEngine} from "./video.ts";
+import {FullscreenEngine} from "./fullscreen.ts";
 
-let videoEngine: VideoEngine | null = null;
 
 class SplatEngine {
     private static splatRenderer: SPLAT.WebGLRenderer;
     public static splatScene: SPLAT.Scene;
-    public static splatCamera: SPLAT.Camera;
+    private static splatCamera: SPLAT.Camera;
     public static splat: SPLAT.Splat;
     public static originalRotation: SPLAT.Quaternion;
     public static declare renderCanvas: HTMLCanvasElement;
     private static splat_frame_id: number | null = null
 
     public static async init() {
-        this.renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
+        this.renderCanvas = document.getElementById('canvas') as HTMLCanvasElement;
 
         this.splatRenderer = new SPLAT.WebGLRenderer(this.renderCanvas);
 
         this.splatScene = new SPLAT.Scene();
         this.splatCamera = new SPLAT.Camera();
-        // this.splatCamera.rotation = SPLAT.Quaternion.FromAxisAngle(new SPLAT.Vector3(0, 0, 1), 0);
 
         this.splatRenderer.backgroundColor = new SPLAT.Color32(0, 0, 0, 0);
         const url = (document.getElementById('splat_url') as HTMLInputElement).value;
@@ -27,7 +26,6 @@ class SplatEngine {
         const progressIndicator = document.getElementById('progress-indicator') as HTMLProgressElement;
 
         this.splat = await SPLAT.Loader.LoadAsync(url, this.splatScene, (progress) => progressIndicator.value = progress * 100);
-
         this.originalRotation = this.splat.rotation;
 
         const progressDialog = document.getElementById('progress-dialog') as HTMLDialogElement;
@@ -62,97 +60,6 @@ class SplatEngine {
     }
 }
 
-class FullscreenEngine {
-
-    static fs = false;
-
-    public static init() {
-
-        const fullscreenButton = document.getElementById('fullscreenBtn') as HTMLButtonElement;
-
-        if (fullscreenButton != null) {
-            // Add a button click listener
-            fullscreenButton.addEventListener('click', async (ev: Event) => {
-                preventDefault(ev);
-
-                if (!this.fs) {
-                    this.openFullscreen();
-                } else {
-                    this.closeFullscreen()
-                }
-            });
-        }
-
-        const facingModeButton = document.getElementById('facingModeButton') as HTMLButtonElement;
-
-        if (facingModeButton != null) {
-            // Add a button click listener
-            facingModeButton.addEventListener('click', async (ev: Event) => {
-                preventDefault(ev);
-
-                const tracks = (videoEngine!.video.srcObject as MediaStream).getTracks();
-                tracks.forEach(track => track.stop());
-
-                videoEngine!.facingMode = videoEngine!.facingMode === 'user' ? 'environment' : 'user';
-
-                const constraints = {
-                    audio: false,
-                    video: videoEngine!.supports!['facingMode'] ? {
-                        facingMode: {exact: videoEngine!.facingMode},
-                    } : {}
-                };
-
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-                videoEngine!.video!.srcObject = null;
-                videoEngine!.video!.srcObject = stream;
-                videoEngine!.video!.play().then();
-            });
-        }
-    }
-
-
-    // @ts-ignore
-    private static openFullscreen() {
-
-        const documentElement = document.getElementById('viewElement')!;
-        this.fs = true;
-        if (documentElement.requestFullscreen) {
-            documentElement.requestFullscreen().then();
-        } else { // @ts-ignore
-            if (documentElement.webkitRequestFullscreen) { /* Safari */
-                // @ts-ignore
-                documentElement.webkitRequestFullscreen();
-            } else { // @ts-ignore
-                if (documentElement.msRequestFullscreen) { /* IE11 */
-                    // @ts-ignore
-                    documentElement.msRequestFullscreen();
-                }
-            }
-        }
-    }
-
-    /* Close fullscreen */
-
-    // @ts-ignore
-    private static closeFullscreen() {
-        this.fs = false;
-
-        if (document.exitFullscreen) {
-            document.exitFullscreen().then();
-        } else { // @ts-ignore
-            if (document.webkitExitFullscreen) { /* Safari */
-                // @ts-ignore
-                document.webkitExitFullscreen();
-            } else { // @ts-ignore
-                if (document.msExitFullscreen) { /* IE11 */
-                    // @ts-ignore
-                    document.msExitFullscreen();
-                }
-            }
-        }
-    }
-}
 
 //////////////
 
@@ -176,16 +83,14 @@ function onPointerMove(ev: PointerEvent) {
     switch (buttonState) {
         case ButtonClickState.left:
 
-
             SplatEngine.splat.position = SplatEngine.splat.position.add(new SPLAT.Vector3(diffX * 0.01, diffY * 0.01, 0));
 
             console.log('position', SplatEngine.splat.position);
             break;
         case ButtonClickState.right:
-            SplatEngine.splat.rotation =
+            SplatEngine.splat.rotation = SplatEngine.originalRotation.multiply(
                 new SPLAT.Quaternion(
-                    -(startPointerY - ev.clientY) * 0.005, (startPointerX - ev.clientX) * 0.005, 0, 1).multiply(SplatEngine.originalRotation).normalize();
-
+                    (startPointerY - ev.clientY) * 0.005, (startPointerX - ev.clientX) * 0.005, 0, 1)).normalize()
             break;
 
         case ButtonClickState.middle:
@@ -218,7 +123,6 @@ function onPointerDown(ev: PointerEvent) {
 
 function onPointerUp() {
     SplatEngine.originalRotation = SplatEngine.splat.rotation;
-
     buttonState = ButtonClickState.none;
 }
 
@@ -344,7 +248,7 @@ function initGestures() {
 async function main() {
     await SplatEngine.init();
 
-    videoEngine = new VideoEngine(SplatEngine.renderCanvas);
+    new VideoEngine(SplatEngine.renderCanvas);
 
     FullscreenEngine.init();
 
