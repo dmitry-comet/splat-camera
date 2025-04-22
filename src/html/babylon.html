@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../css/babylon.css">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blythe</title>
 </head>
 
+<!--<body>-->
 <body style="background-image: url('https://avatars.mds.yandex.net/i?id=bcc4c656a046642e7e0e58129434e89c_l-4079525-images-thumbs&n=13');background-repeat: no-repeat;background-attachment: fixed;background-size: cover;">
 <!-- style="background-image: url('https://cdn.glitch.global/fabaebc5-fdcd-426c-bde6-af13479e7861/7448_l.jpg?v=1745084411665');background-repeat: no-repeat;background-attachment: fixed;background-size: cover;"> -->
 
 <input id="splat_url" type="hidden"
-       value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/FOX0420.splat?v=1745227328070" />
-       <!--value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/doll_lq.splat?v=1745067063532"-->
+       value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/FOX0420.splat?v=1745227328070"/>
+<!--<input id="splat_url" type="hidden" value="https://cdn.glitch.me/fabaebc5-fdcd-426c-bde6-af13479e7861/doll_lq.splat?v=1745067063532" />-->
 
-<div id="videoScreen" style="display: none"></div>
+<!--<div id="videoScreen" style="display: none"></div>-->
+<div id="videoScreen"></div>
 
-<button id="screenshotBtn" class="big-symbol-btn">📸</button>
-<button id="fullscreenBtn" class="big-symbol-btn">[ ]</button>
-
-<div id="canvasZone">
+<div id="viewElement">
     <canvas id="renderCanvas"></canvas>
+    <button id="screenshotBtn" class="big-symbol-btn">📸</button>
+    <button id="fullscreenBtn" class="big-symbol-btn">[ ]</button>
+    <button id="facingModeButton" class="big-symbol-btn">C</button>
 </div>
 
-
-<script src="/scripts/main.ts" type="module"></script>
+<script src="/src/scripts/babylon.ts" type="module"></script>
 </body>
 </html>

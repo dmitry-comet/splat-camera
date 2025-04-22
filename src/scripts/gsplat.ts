@@ -1,122 +1,25 @@
 import * as SPLAT from "gsplat";
+import {VideoEngine} from "./video.ts";
 
-
-class VideoEngine {
-    private videoCanvas: HTMLCanvasElement;
-    private renderCanvas: HTMLCanvasElement;
-    private video: HTMLVideoElement;
-    private video_frame_id: number | null = null;
-
-    constructor(renderCanvas: HTMLCanvasElement) {
-        this.renderCanvas = renderCanvas;
-        this.video = document.createElement('video') as HTMLVideoElement;
-        this.video.disablePictureInPicture = true;
-        this.video.autoplay = true;
-        this.video.controls = false;
-        this.video.playsInline = true;
-
-        document.body.appendChild(this.video);
-        this.video.style.display = 'none';
-
-        this.videoCanvas = document.createElement('canvas');
-
-        const videoScreenDiv = window.document.getElementById('videoScreen')!;
-
-        videoScreenDiv.appendChild(this.videoCanvas);
-
-        const constraints = {
-            audio: false,
-            video: true
-        };
-
-        navigator.mediaDevices.getUserMedia(constraints).then(value => this.handleSuccess(value)).catch(reason => this.handleError(reason));
-    }
-
-    private videoFrame() {
-        let srcW = this.video.videoWidth;
-        let srcH = this.video.videoHeight;
-        let dstW = this.renderCanvas.width;
-        let dstH = this.renderCanvas.height;
-
-        const srcAspect = srcW / srcH;
-        const dstAspect = dstW / dstH;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        if (srcAspect < dstAspect) {
-            offsetX = 0;
-            offsetY = (srcH - srcW / dstAspect) / 2;
-            srcH = srcW / dstAspect;
-
-            //console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
-        } else {
-            offsetX = (srcW - srcH * dstAspect) / 2;
-            offsetY = 0;
-            srcW = srcH * dstAspect;
-
-            //console.log(`2: srcAspect = ${srcAspect}, dstAspect = ${dstAspect} srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}`);
-            //console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
-        }
-
-        dstW = 960;
-        dstH = 1280;
-
-        this.videoCanvas!.width = dstW;
-        this.videoCanvas!.height = dstH;
-
-        this.videoCanvas!.getContext('2d')!.drawImage(this.video,
-            offsetX, offsetY, srcW, srcH,
-            0,
-            0,
-            dstW,
-            dstH);
-
-        if (this.video_frame_id != null) {
-            cancelAnimationFrame(this.video_frame_id);
-        }
-
-        setTimeout(() => {
-            this.video_frame_id = requestAnimationFrame(() => {
-                this.videoFrame();
-            });
-        }, 50);
-    }
-
-    private handleSuccess(stream: MediaProvider) {
-
-        this.video.srcObject = stream;
-
-        if (this.video_frame_id != null) {
-            cancelAnimationFrame(this.video_frame_id);
-        }
-
-        this.video_frame_id = requestAnimationFrame(() => {
-            this.videoFrame();
-        })
-    }
-
-    private handleError(error: any) {
-        console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name, error.stack);
-    }
-
-}
+let videoEngine: VideoEngine | null = null;
 
 class SplatEngine {
     private static splatRenderer: SPLAT.WebGLRenderer;
     public static splatScene: SPLAT.Scene;
-    private static splatCamera: SPLAT.Camera;
+    public static splatCamera: SPLAT.Camera;
     public static splat: SPLAT.Splat;
     public static originalRotation: SPLAT.Quaternion;
     public static declare renderCanvas: HTMLCanvasElement;
     private static splat_frame_id: number | null = null
 
     public static async init() {
-        this.renderCanvas = document.getElementById('canvas') as HTMLCanvasElement;
+        this.renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
 
         this.splatRenderer = new SPLAT.WebGLRenderer(this.renderCanvas);
 
         this.splatScene = new SPLAT.Scene();
         this.splatCamera = new SPLAT.Camera();
+        // this.splatCamera.rotation = SPLAT.Quaternion.FromAxisAngle(new SPLAT.Vector3(0, 0, 1), 0);
 
         this.splatRenderer.backgroundColor = new SPLAT.Color32(0, 0, 0, 0);
         const url = (document.getElementById('splat_url') as HTMLInputElement).value;
@@ -124,6 +27,7 @@ class SplatEngine {
         const progressIndicator = document.getElementById('progress-indicator') as HTMLProgressElement;
 
         this.splat = await SPLAT.Loader.LoadAsync(url, this.splatScene, (progress) => progressIndicator.value = progress * 100);
+
         this.originalRotation = this.splat.rotation;
 
         const progressDialog = document.getElementById('progress-dialog') as HTMLDialogElement;
@@ -164,7 +68,7 @@ class FullscreenEngine {
 
     public static init() {
 
-        const fullscreenButton = document.getElementById('fullscreenBtn');
+        const fullscreenButton = document.getElementById('fullscreenBtn') as HTMLButtonElement;
 
         if (fullscreenButton != null) {
             // Add a button click listener
@@ -178,9 +82,37 @@ class FullscreenEngine {
                 }
             });
         }
+
+        const facingModeButton = document.getElementById('facingModeButton') as HTMLButtonElement;
+
+        if (facingModeButton != null) {
+            // Add a button click listener
+            facingModeButton.addEventListener('click', async (ev: Event) => {
+                preventDefault(ev);
+
+                const tracks = (videoEngine!.video.srcObject as MediaStream).getTracks();
+                tracks.forEach(track => track.stop());
+
+                videoEngine!.facingMode = videoEngine!.facingMode === 'user' ? 'environment' : 'user';
+
+                const constraints = {
+                    audio: false,
+                    video: videoEngine!.supports!['facingMode'] ? {
+                        facingMode: {exact: videoEngine!.facingMode},
+                    } : {}
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+                videoEngine!.video!.srcObject = null;
+                videoEngine!.video!.srcObject = stream;
+                videoEngine!.video!.play().then();
+            });
+        }
     }
 
 
+    // @ts-ignore
     private static openFullscreen() {
 
         const documentElement = document.getElementById('viewElement')!;
@@ -201,6 +133,8 @@ class FullscreenEngine {
     }
 
     /* Close fullscreen */
+
+    // @ts-ignore
     private static closeFullscreen() {
         this.fs = false;
 
@@ -248,9 +182,10 @@ function onPointerMove(ev: PointerEvent) {
             console.log('position', SplatEngine.splat.position);
             break;
         case ButtonClickState.right:
-            SplatEngine.splat.rotation = SplatEngine.originalRotation.multiply(
+            SplatEngine.splat.rotation =
                 new SPLAT.Quaternion(
-                    (startPointerY - ev.clientY) * 0.005, (startPointerX - ev.clientX) * 0.005, 0, 1)).normalize()
+                    -(startPointerY - ev.clientY) * 0.005, (startPointerX - ev.clientX) * 0.005, 0, 1).multiply(SplatEngine.originalRotation).normalize();
+
             break;
 
         case ButtonClickState.middle:
@@ -283,6 +218,7 @@ function onPointerDown(ev: PointerEvent) {
 
 function onPointerUp() {
     SplatEngine.originalRotation = SplatEngine.splat.rotation;
+
     buttonState = ButtonClickState.none;
 }
 
@@ -408,7 +344,7 @@ function initGestures() {
 async function main() {
     await SplatEngine.init();
 
-    new VideoEngine(SplatEngine.renderCanvas);
+    videoEngine = new VideoEngine(SplatEngine.renderCanvas);
 
     FullscreenEngine.init();
 

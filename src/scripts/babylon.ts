@@ -1,12 +1,7 @@
 import {
     AbstractMesh,
-    ArcRotateCamera,
-    Color4,
-    Engine,
-    ImportMeshAsync,
-    RenderTargetTexture,
-    Scene,
-    Vector3
+    ArcRotateCamera, Color4, Engine, ImportMeshAsync, RenderTargetTexture,
+    Scene, Vector3
 } from '@babylonjs/core';
 
 import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
@@ -14,93 +9,9 @@ import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
 registerBuiltInLoaders();
 
 import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
+import {VideoEngine} from "./video.ts";
 
-let videoCanvas: HTMLCanvasElement | null = null;
-
-{
-    const video: HTMLVideoElement = document.createElement('video');
-    video.disablePictureInPicture = true;
-    video.autoplay = true;
-    video.controls = false;
-    video.playsInline = true;
-
-    document.body.appendChild(video);
-    video.style.display = 'none';
-
-    videoCanvas = document.createElement('canvas');
-
-    const videoScreenDiv = window.document.getElementById('videoScreen')!;
-
-    videoScreenDiv.appendChild(videoCanvas);
-
-    const constraints = {
-        audio: false,
-        video: true
-    };
-
-    function videoFrame() {
-
-
-        let srcW = video.videoWidth;
-        let srcH = video.videoHeight;
-        const dstW = renderCanvas.width;
-        const dstH = renderCanvas.height;
-
-        const srcAspect = srcW / srcH;
-        const dstAspect = dstW / dstH;
-        let offsetX = 0;
-        let offsetY = 0;
-
-        if (srcAspect < dstAspect) {
-            srcH = dstW / srcAspect;
-            srcW = dstW;
-            console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
-        } else {
-            srcW = dstH * srcAspect;
-            srcH = dstH;
-            offsetX = (srcW - dstW) / 2;
-            offsetY = (srcH - dstH) / 2;
-            //console.log(`2: srcAspect = ${srcAspect}, dstAspect = ${dstAspect} srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}`);
-            console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
-        }
-
-        videoCanvas!.width = srcW;
-        videoCanvas!.height = srcH;
-
-        videoCanvas!.getContext('2d')!.drawImage(video,
-            (srcW - dstW) / 2,
-            (srcH - dstH) / 2,
-            dstW,
-            dstH);
-
-
-        if (video_frame_id != null) {
-            cancelAnimationFrame(video_frame_id);
-        }
-
-        video_frame_id = requestAnimationFrame(() => {
-            videoFrame();
-        });
-    }
-
-    function handleSuccess(stream: MediaProvider) {
-        video.srcObject = stream;
-
-        if (splat_frame_id != null) {
-            cancelAnimationFrame(splat_frame_id);
-        }
-
-        splat_frame_id = requestAnimationFrame(() => {
-            videoFrame();
-        })
-    }
-
-    function handleError(error: any) {
-        console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name);
-    }
-
-    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
-}
+let videoEngine: VideoEngine | null = null;
 
 const renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
 
@@ -113,7 +24,6 @@ let sceneToRender: Scene | null = null;
 let splat: AbstractMesh | null;
 
 let splat_frame_id: number | null = null;
-let video_frame_id: number | null = null;
 
 function renderScene() {
 
@@ -139,7 +49,6 @@ const createDefaultEngine = () =>
         stencil: true,
         disableWebGL2Support: false,
     });
-
 
 function renderLoopFunc() {
     if (sceneToRender != null && sceneToRender.activeCamera) {
@@ -222,17 +131,37 @@ const createScene = function () {
         splat.scaling.set(1, 1, 1);
         splat.rotation.set(0, 0, 0);
 
-        splat.material!.alphaMode = 2;
-        console.log(`splat.material.alphaMode: ${splat.material?.alphaMode}`);
 
-
-        // if (splat.material) {
-        //     splat.material.forceDepthWrite = false;
-        // }
+        // // videoTexture = new VideoTexture('vt', video, scene, false, true, Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
+        // //     {
+        // //         autoUpdateTexture: true, independentVideoSource: true
+        // //     });
         //
-        splat.renderingGroupId = 1;
+        // var renderTarget = new RenderTargetTexture(
+        //     'render to texture', // name
+        //     1024, // texture size
+        //     scene,
+        //     {
         //
-        scene.setRenderingAutoClearDepthStencil(1, true, true, true);
+        //         generateMipMaps: false
+        //     }// the scene
+        // );
+        // renderTarget.clearColor = new Color4(1, 1, 1, 0);
+        // scene.customRenderTargets.push(renderTarget); // add RTT to the scene
+        // renderTarget.renderList!.push(splat);
+        //
+        // // this is the plane that will show the RTT.
+        // var plane = MeshBuilder.CreatePlane("plane", {width: 4, height: 4}, scene);
+        // plane.billboardMode = AbstractMesh.BILLBOARDMODE_ALL;
+        //
+        // // create a material for the RTT and apply it to the plane
+        // var rttMaterial = new StandardMaterial("RTT material", scene);
+        // rttMaterial.transparencyMode = 3;
+        // rttMaterial.opacityTexture = renderTarget;
+        // rttMaterial.alphaMode = Constants.ALPHA_COMBINE;
+        // rttMaterial.emissiveTexture = videoTexture;
+        // rttMaterial.disableLighting = true;
+        // plane.material = rttMaterial;
 
         engine?.runRenderLoop(renderLoopFunc);
     });
@@ -512,11 +441,15 @@ async function initFunction() {
     scene = createScene();
 
     scene.autoClearDepthAndStencil = true;
-    scene.clearColor = new Color4(0, 0, 0, 0.0); // RGBA (0-1 range)
+
+    // scene.useOrderIndependentTransparency = true;
+    scene.clearColor = new Color4(0, 0, 0, 0); // RGBA (0-1 range)
 }
 
 initFunction().then(() => {
     sceneToRender = scene;
+
+    videoEngine = new VideoEngine(renderCanvas);
     // renderScene();
 });
 
@@ -588,7 +521,7 @@ function getSplatScreenBounds(scene: Scene, splatMesh: AbstractMesh) {
 // Main capture function
 async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileName = 'splat-capture.png') {
 
-    if (videoCanvas == null) {
+    if (videoEngine?.videoCanvas == null) {
         return;
     }
 
@@ -657,11 +590,11 @@ async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileNa
                 //  var imgCanvas = document.createElement('canvas');
                 // imgCanvas.width = img.width;
                 // imgCanvas.height = img.height;
-                const imgContext = videoCanvas!.getContext('2d')!;
+                const imgContext = videoEngine!.videoCanvas!.getContext('2d')!;
                 // await imgContext.drawImage(videoCanvas, 0, 0);
-                const imgPixels = imgContext.getImageData(0, 0, videoCanvas.width, videoCanvas.height).data;
+                const imgPixels = imgContext.getImageData(0, 0, videoEngine!.videoCanvas.width, videoEngine!.videoCanvas.height).data;
 
-                console.log(`W: ${videoCanvas.width}, H: ${videoCanvas.height}, 1: ${intBounds.width}, 2: ${intBounds.height}`);
+                console.log(`W: ${videoEngine!.videoCanvas.width}, H: ${videoEngine!.videoCanvas.height}, 1: ${intBounds.width}, 2: ${intBounds.height}`);
 
                 const pixelsBlended = flipPixelsVertical(pixels, intBounds.width, intBounds.height);
 
@@ -672,9 +605,9 @@ async function captureSplatExactly(scene: Scene, splatMesh: AbstractMesh, fileNa
                         const b = pixelsBlended[y * intBounds.width * 4 + x * 4 + 2];
                         const a = pixelsBlended[y * intBounds.width * 4 + x * 4 + 3];
 
-                        const r2 = imgPixels[y * videoCanvas.width * 4 + x * 4];
-                        const g2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 1];
-                        const b2 = imgPixels[y * videoCanvas.width * 4 + x * 4 + 2];
+                        const r2 = imgPixels[y * videoEngine!.videoCanvas.width * 4 + x * 4];
+                        const g2 = imgPixels[y * videoEngine!.videoCanvas.width * 4 + x * 4 + 1];
+                        const b2 = imgPixels[y * videoEngine!.videoCanvas.width * 4 + x * 4 + 2];
 
                         pixelsBlended[y * intBounds.width * 4 + x * 4] = (r2 * (255.0 - a) + r * a) / 256;
                         pixelsBlended[y * intBounds.width * 4 + x * 4 + 1] = (g2 * (255.0 - a) + g * a) / 256;

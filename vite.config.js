@@ -6,7 +6,7 @@ import { dependencies } from './package.json';
 function renderChunks(deps) {
     let chunks = {};
     Object.keys(deps).forEach((key) => {
-        if (['gsplat'].includes(key)) return;
+        if (['gsplat','@babylonjs/core', '@babylonjs/loaders'].includes(key)) return;
         chunks[key] = [key];
     });
     return chunks;
@@ -21,21 +21,24 @@ export default defineConfig({
     ],
     build: {
         lib: {
-            entry: './scripts/gsplat.ts',
+            entry: './src/scripts/gsplat.ts',
             name: 'Gaussian Splat Camera',
             formats: ['es'],
         },
         rollupOptions: {
             emptyOutDir: false, // you need to delete the output directory outside vite!
             input: {
-                main: './index.html',
-                gsplat: './gsplat/index.html',
+                main: './src/html/babylon.html',
+                babylon: './src/html/babylon.html',
+                gsplat: './src/html/gsplat.html',
+                gsplatv: './src/html/gsplatv.html',
             },
 
             output: {
                 inlineDynamicImports: false,
                 manualChunks: {
-                    gsplat: ['gsplat'],
+                    babylonjs: ['@babylonjs/core', '@babylonjs/loaders'],
+                    gsplatjs: ['gsplat'],
                     ...renderChunks(dependencies),
                 },
                 entryFileNames: `scripts/[name].js`,
