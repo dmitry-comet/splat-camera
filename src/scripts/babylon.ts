@@ -6,7 +6,7 @@ import {
     Engine, HtmlElementTexture,
     ImportMeshAsync,
     Mesh,
-    MeshBuilder,
+    MeshBuilder, Quaternion,
     Scene,
     StandardMaterial,
     Vector3,
@@ -22,6 +22,7 @@ import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
 import {screenshotSize, VideoEngine} from "./video.ts";
 import {FullscreenEngine} from "./fullscreen.ts";
 import {log} from "./log.ts";
+import {InputEngine} from "./input.ts";
 
 let videoEngine: VideoEngine | null = null;
 
@@ -37,23 +38,7 @@ let sceneToRender: Scene | null = null;
 
 let splat: AbstractMesh | null;
 
-//let splat_frame_id: number | null = null;
-
-function renderScene() {
-
-    // engine?.stopRenderLoop();
-    //
-    // if (splat_frame_id != null) {
-    //     cancelAnimationFrame(splat_frame_id);
-    // }
-    //
-    // splat_frame_id = requestAnimationFrame(() => {
-    //     if (sceneToRender != null && sceneToRender.activeCamera) {
-    //         sceneToRender.render(false, true);
-    //     }
-    // });
-}
-
+let inputEngine : InputEngine | null = null;
 
 const loadingScreen = new DefaultLoadingScreen(renderCanvas, 'Loading', 'black');
 
@@ -116,7 +101,7 @@ const createScene = function () {
 
         splat.position.set(0, 0, -3);
         splat.scaling.set(1, 1, 1);
-        splat.rotation.set(0, 0, 0);
+        splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
 
         videoTexture = new HtmlElementTexture('vt', videoEngine?.videoCanvas!,
@@ -145,6 +130,14 @@ const createScene = function () {
 
         scalePlane();
 
+        scene.onDispose = function () {
+            inputEngine?.dispose()
+        };
+
+        inputEngine = new InputEngine(splat!);
+
+        inputEngine.attachToCanvas(renderCanvas);
+
         engine?.runRenderLoop(renderLoopFunc);
     });
 
@@ -161,17 +154,7 @@ const createScene = function () {
     }
 
 
-    scene.onDispose = function () {
-        renderCanvas.onpointerdown = null;
-        renderCanvas.onpointermove = null;
 
-        renderCanvas.onpointerup = null;
-        renderCanvas.onpointercancel = null;
-        renderCanvas.onpointerout = null;
-        renderCanvas.onpointerleave = null;
-    };
-
-    init_gestures();
 
     return scene;
 };
@@ -186,174 +169,6 @@ function scalePlane() {
     plane.scaling.set(x, y, 1);
 }
 
-enum ButtonClickState {
-    left,
-    middle,
-    right,
-    none
-}
-
-let buttonState: ButtonClickState = ButtonClickState.none;
-
-let lastPointerX = 0, lastPointerY = 0;
-
-function onPointerMove() {
-
-    const diffX = scene!.pointerX - lastPointerX;
-    const diffY = scene!.pointerY - lastPointerY;
-
-    switch (buttonState) {
-        case ButtonClickState.left:
-            splat!.position.x -= -diffX * 0.01;
-            splat!.position.y -= diffY * 0.01;
-            break;
-        case ButtonClickState.right:
-            splat!.rotation.y -= diffX * 0.01;
-            splat!.rotation.x -= diffY * 0.01;
-            break;
-
-        case ButtonClickState.middle:
-            splat!.scaling.y -= diffY * 0.01;
-            splat!.scaling.x -= diffY * 0.01;
-            splat!.scaling.z -= diffY * 0.01;
-            break;
-    }
-
-    lastPointerX = scene!.pointerX;
-    lastPointerY = scene!.pointerY;
-
-    renderScene();
-}
-
-
-function onPointerDown(ev: PointerEvent) {
-    lastPointerX = scene!.pointerX;
-    lastPointerY = scene!.pointerY;
-
-    switch (ev.button) {
-        case 0:
-            buttonState = ButtonClickState.left;
-            break;
-        case 1:
-            buttonState = ButtonClickState.middle;
-            break;
-        case 2:
-            buttonState = ButtonClickState.right;
-            break;
-    }
-}
-
-function onPointerUp() {
-    buttonState = ButtonClickState.none;
-}
-
-
-//////////////
-// Global vars to cache event state
-let evCache: PointerEvent[] = [];
-
-let prevDiff = -1;
-
-function pointerdown_handler(ev: PointerEvent) {
-    evCache.push(ev);
-
-    if (evCache.length == 1) {
-        onPointerDown(ev);
-    } else if (evCache.length == 3) {
-        lastPointerX = (evCache[2].clientX + evCache[1].clientX + evCache[0].clientX) / 2;
-        lastPointerY = (evCache[2].clientY + evCache[1].clientY + evCache[0].clientY) / 2;
-    }
-}
-
-function pointermove_handler(ev: PointerEvent) {
-    // This function implements a 2-pointer horizontal pinch/zoom gesture.
-    //
-    // If the distance between the two pointers has increased (zoom in),
-    // the taget element's background is changed to 'pink' and if the
-    // distance is decreasing (zoom out), the color is changed to 'lightblue'.
-    //
-    // This function sets the target element's border to 'dashed' to visually
-    // indicate the pointer's target received a move event.
-
-    // Find this event in the cache and update its record with this event
-    for (let i = 0; i < evCache.length; i++) {
-        if (ev.pointerId == evCache[i].pointerId) {
-            evCache[i] = ev;
-            break;
-        }
-    }
-
-    if (evCache.length == 1) {
-        onPointerMove();
-    }
-    // If 3 pointers are down, check for pinch gestures
-    else if (evCache.length == 3) {
-
-        const centerX = (evCache[2].clientX + evCache[1].clientX + evCache[0].clientX) / 2;
-        const centerY = (evCache[2].clientY + evCache[1].clientY + evCache[0].clientY) / 2;
-
-        const diffX = centerX - lastPointerX;
-        const diffY = centerY - lastPointerY;
-
-        splat!.rotation.y -= diffX * 0.001;
-        splat!.rotation.x -= diffY * 0.001;
-
-        renderScene();
-    } else if (evCache.length == 2) {
-        // Calculate the distance between the two pointers
-        const curDiff = Math.sqrt(
-            Math.pow(evCache[1].clientX - evCache[0].clientX, 2) +
-            Math.pow(evCache[1].clientY - evCache[0].clientY, 2)
-        );
-
-        if (prevDiff > 0) {
-            splat!.scaling.y += (curDiff - prevDiff) * 0.01;
-            splat!.scaling.x += (curDiff - prevDiff) * 0.01;
-            splat!.scaling.z += (curDiff - prevDiff) * 0.01;
-        }
-
-        renderScene();
-
-        // Cache the distance for the next move event
-        prevDiff = curDiff;
-    }
-}
-
-function pointerup_handler(ev: PointerEvent) {
-
-    // Remove this pointer from the cache and reset the target's
-    // background and border
-    remove_event(ev);
-
-    // If the number of pointers down is less than two then reset diff tracker
-    if (evCache.length < 3) prevDiff = -1;
-
-    if (evCache.length == 1) {
-        onPointerUp();
-    }
-}
-
-function remove_event(ev: PointerEvent) {
-    // Remove this event from the target's cache
-    for (let i = 0; i < evCache.length; i++) {
-        if (evCache[i].pointerId == ev.pointerId) {
-            evCache.splice(i, 1);
-            break;
-        }
-    }
-}
-
-
-function init_gestures() {
-    // Install event handlers for the pointer target
-    renderCanvas.onpointerdown = pointerdown_handler;
-    renderCanvas.onpointermove = pointermove_handler;
-
-    renderCanvas.onpointerup = pointerup_handler;
-    renderCanvas.onpointercancel = pointerup_handler;
-    renderCanvas.onpointerout = pointerup_handler;
-    renderCanvas.onpointerleave = pointerup_handler;
-}
 
 ///////////////
 
