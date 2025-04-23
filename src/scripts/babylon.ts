@@ -14,11 +14,14 @@ import {
 
 import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
 
+import {DateTime} from 'luxon';
+
 registerBuiltInLoaders();
 
 import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
-import {VideoEngine} from "./video.ts";
+import {screenshotSize, VideoEngine} from "./video.ts";
 import {FullscreenEngine} from "./fullscreen.ts";
+import {log} from "./log.ts";
 
 let videoEngine: VideoEngine | null = null;
 
@@ -34,21 +37,21 @@ let sceneToRender: Scene | null = null;
 
 let splat: AbstractMesh | null;
 
-let splat_frame_id: number | null = null;
+//let splat_frame_id: number | null = null;
 
 function renderScene() {
 
-    engine?.stopRenderLoop();
-
-    if (splat_frame_id != null) {
-        cancelAnimationFrame(splat_frame_id);
-    }
-
-    splat_frame_id = requestAnimationFrame(() => {
-        if (sceneToRender != null && sceneToRender.activeCamera) {
-            sceneToRender.render(false, true);
-        }
-    });
+    // engine?.stopRenderLoop();
+    //
+    // if (splat_frame_id != null) {
+    //     cancelAnimationFrame(splat_frame_id);
+    // }
+    //
+    // splat_frame_id = requestAnimationFrame(() => {
+    //     if (sceneToRender != null && sceneToRender.activeCamera) {
+    //         sceneToRender.render(false, true);
+    //     }
+    // });
 }
 
 
@@ -67,18 +70,30 @@ function renderLoopFunc() {
     }
 }
 
-async function captureSplat(scene: Scene, _splat: AbstractMesh, _png: string) {
+async function captureSplat(scene: Scene, _splat: AbstractMesh) {
+
+    const backup = {width: renderCanvas.width, height: renderCanvas.height};
+
+    let renderSize = screenshotSize(renderCanvas.width, renderCanvas.height);
+
+    renderCanvas.width = renderSize.width;
+    renderCanvas.height = renderSize.height;
+
 
     scene.render(false, true);
+
+    log(`VIDEO: ${renderCanvas!.width} x ${renderCanvas!.height}`);
 
     renderCanvas.toBlob(blob => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob!);
-        a.download = 'splat.png';
+        a.download = `splat_${DateTime.now().toFormat('yyyy_LL_dd_HH_mm_ss')}.jpg`;
         a.click();
         console.log(`Success! Saved cropped splat as splat.png`);
-    }, 'image/png', 1);
+    }, 'image/jpeg', 1);
 
+    renderCanvas.width = backup.width;
+    renderCanvas.height = backup.height;
 }
 
 let plane: Mesh;
@@ -87,7 +102,7 @@ const createScene = function () {
     // This creates a basic Babylon Scene object (non-mesh)
     const scene = new Scene(engine!);
 
-    const camera = new ArcRotateCamera('Camera', -Math.PI / 2, Math.PI / 2, 10, new Vector3(0, 0, 0), scene)
+    const camera = new ArcRotateCamera('Camera', -Math.PI / 2, Math.PI / 2, 20, new Vector3(0, 0, 0), scene)
 
     camera.useFramingBehavior = true;
 
@@ -114,7 +129,6 @@ const createScene = function () {
 
         window.setInterval(() => {
             videoTexture?.update();
-            scene.render();
         }, 50);
 
         // this is the plane that will show the RTT.
@@ -124,12 +138,10 @@ const createScene = function () {
         // create a material for the RTT and apply it to the plane
         const rttMaterial = new StandardMaterial("RTT material", scene);
         rttMaterial.transparencyMode = 3;
-        // rttMaterial.opacityTexture = renderTarget;
         rttMaterial.alphaMode = Constants.ALPHA_COMBINE;
         rttMaterial.emissiveTexture = videoTexture;
         rttMaterial.disableLighting = true;
         plane.material = rttMaterial;
-
 
         scalePlane();
 
@@ -143,7 +155,7 @@ const createScene = function () {
         screenshotButton.addEventListener('click', async () => {
             if (splat) {
                 // Assuming you have a scene and a mesh you want to capture
-                await captureSplat(scene, splat, 'splat.png');
+                await captureSplat(scene, splat);
             }
         });
     }

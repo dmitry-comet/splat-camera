@@ -90,8 +90,11 @@ export class VideoEngine {
             srcW = srcH * dstAspect;
         }
 
-        dstW = 960;
-        dstH = 1280;
+        const dstSize = screenshotSize(dstH, dstH);
+
+        dstW = dstSize.width;
+        dstH  = dstSize.height;
+
 
         this.videoCanvas!.width = dstW;
         this.videoCanvas!.height = dstH;
@@ -131,4 +134,16 @@ export class VideoEngine {
         console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name, error.stack);
     }
 
+}
+
+export function screenshotSize(srcW: number, srcH: number, size: number = 2160) {
+    return srcW > srcH ?
+        {
+            width: size,
+            height: srcH * size / srcW
+        } :
+        {
+            width: srcW * size / srcH,
+            height: size
+        };
 }

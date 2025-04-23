@@ -6,7 +6,7 @@ import {dependencies} from './package.json';
 function renderChunks(deps: any) {
     let chunks: any = {};
     Object.keys(deps).forEach((key) => {
-        if (['gsplat', '@babylonjs/core', '@babylonjs/loaders'].includes(key)) return;
+        if (['gsplat', '@babylonjs/core', '@babylonjs/loaders', 'luxon'].includes(key)) return;
         chunks[key] = [key];
     });
     return chunks;
@@ -44,6 +44,7 @@ export default defineConfig({
                 manualChunks: {
                     babylonjs: ['@babylonjs/core', '@babylonjs/loaders'],
                     gsplatjs: ['gsplat'],
+                    luxon: ['luxon'],
                     ...renderChunks(dependencies),
                 },
                 entryFileNames: `scripts/[name].js`,

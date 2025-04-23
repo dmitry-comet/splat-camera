@@ -67,6 +67,12 @@ canvas {
     transition: transform 0.2s;
 }
 
+.log {
+    z-index: 1;
+    top: 2%;
+    position: absolute;
+}
+
 .btn-icon {
     filter: invert(100%) sepia(1%) saturate(16%) hue-rotate(190deg) brightness(116%) contrast(88%);
 }
