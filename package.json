@@ -13,14 +13,16 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@vitejs/plugin-legacy": "^6.1.0",
+    "servez": "^2.3.0",
+    "terser": "^5.39.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.2",
-    "vite-plugin-mkcert": "^1.17.8",
-    "servez": "^2.3.0"
+    "vite-plugin-mkcert": "^1.17.8"
   },
   "dependencies": {
-    "gsplat": "^1.2.4",
     "@babylonjs/core": "^8.3.1",
-    "@babylonjs/loaders": "^8.3.1"
+    "@babylonjs/loaders": "^8.3.1",
+    "gsplat": "^1.2.4"
   }
 }
