@@ -5,7 +5,7 @@ export class VideoEngine {
     public video: HTMLVideoElement;
     private video_frame_id: number | null = null;
     public supports: MediaTrackSupportedConstraints | null = null;
-    public facingMode = 'user';
+    public facingMode : string | null = null;
 
     constructor(renderCanvas: HTMLCanvasElement) {
         this.renderCanvas = renderCanvas;
@@ -28,9 +28,7 @@ export class VideoEngine {
 
         const constraints = {
             audio: false,
-            video: this.supports!['facingMode'] ? {
-                facingMode: this.facingMode,
-            } : {}
+            video: true,
         };
 
         navigator.mediaDevices.getUserMedia(constraints).then(value => this.handleSuccess(value)).catch(reason => this.handleError(reason));
@@ -38,7 +36,6 @@ export class VideoEngine {
         const facingModeButton = document.getElementById('facingModeButton') as HTMLButtonElement;
 
         if (facingModeButton != null) {
-
             const preventDefault = (e: Event) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -51,7 +48,7 @@ export class VideoEngine {
                 const tracks = (this.video.srcObject as MediaStream).getTracks();
                 tracks.forEach(track => track.stop());
 
-                this.facingMode = this.facingMode === 'user' ? 'environment' : 'user';
+                this.facingMode = (this.facingMode === 'user' || this.facingMode == null) ? 'environment' : 'user';
 
                 const constraints = {
                     audio: false,
@@ -60,7 +57,10 @@ export class VideoEngine {
                     } : {}
                 };
 
-                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const stream = await navigator.mediaDevices.getUserMedia(constraints).catch(_reason => navigator.mediaDevices.getUserMedia({
+                    audio: false,
+                    video: true,
+                }));
 
                 this.video!.srcObject = null;
                 this.video!.srcObject = stream;
@@ -84,15 +84,10 @@ export class VideoEngine {
             offsetX = 0;
             offsetY = (srcH - srcW / dstAspect) / 2;
             srcH = srcW / dstAspect;
-
-            // console.log(`1: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
         } else {
             offsetX = (srcW - srcH * dstAspect) / 2;
             offsetY = 0;
             srcW = srcH * dstAspect;
-
-            //console.log(`2: srcAspect = ${srcAspect}, dstAspect = ${dstAspect} srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}`);
-            // console.log(`2: srcW = ${srcW}, srcH = ${srcH}, dstW = ${dstW}, dstH = ${dstH}, offsetX = ${offsetX}, offsetY = ${offsetY}`);
         }
 
         dstW = 960;

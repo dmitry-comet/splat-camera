@@ -86,7 +86,7 @@ progress::-moz-progress-bar {
     height: 10%;
 }
 
-.big-symbol-btn {
+.btn-ui {
     color: white;
     padding: 12px 24px;
     margin: 0;
@@ -99,7 +99,7 @@ progress::-moz-progress-bar {
     transition: transform 0.2s;
 }
 
-.big-symbol-btn:hover {
+.btn-ui:hover {
     transform: scale(1.1);
     color: #4285f4;
     /* Changes symbol color */

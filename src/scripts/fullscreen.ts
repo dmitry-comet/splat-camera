@@ -5,24 +5,25 @@ export class FullscreenEngine {
         /* Get the documentElement (<html>) to display the page in fullscreen */
         const documentElement = document.documentElement;
 
-        const fullscreenButton = document.getElementById('fullscreenBtn');
+        const fullscreenButton = document.getElementById('fullscreenBtn') as HTMLButtonElement;
+        const fullscreenOffButton = document.getElementById('fullscreenOffBtn') as HTMLButtonElement;
 
-        let fs = false;
+        fullscreenButton.addEventListener('click', async () => {
+            fullscreenButton.style.display = 'none';
+            fullscreenOffButton.style.display = 'inline';
+            openFullscreen();
+        });
 
-        if (fullscreenButton != null) {
-            // Add a button click listener
-            fullscreenButton.addEventListener('click', async () => {
-                if (!fs)
-                    openFullscreen();
-                else
-                    closeFullscreen()
-            });
-        }
+        fullscreenOffButton.addEventListener('click', async () => {
+            fullscreenButton.style.display = 'inline';
+            fullscreenOffButton.style.display = 'none';
+            closeFullscreen()
+        });
+
 
         /* View in fullscreen */
         function openFullscreen() {
 
-            fs = true;
             if (documentElement.requestFullscreen) {
                 documentElement.requestFullscreen({navigationUI: 'hide'}).then();
             } else { // @ts-ignore
@@ -40,7 +41,6 @@ export class FullscreenEngine {
 
         /* Close fullscreen */
         function closeFullscreen() {
-            fs = false;
             if (document.exitFullscreen) {
                 document.exitFullscreen().then();
             } else { // @ts-ignore

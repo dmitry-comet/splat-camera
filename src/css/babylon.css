@@ -32,33 +32,30 @@ canvas {
 }
 
 #screenshotBtn {
-    z-index: 1;
-    bottom: 2%;
-    left: 45%;
+    left: 50%;
     background: #FFFFFF50;
-    position: absolute;
-    height: 10%;
+    transform: translateX(-50%);
 }
 
 #fullscreenBtn {
-    z-index: 1;
-    bottom: 2%;
     right: 2%;
     background: #FFFFFF50;
-    position: absolute;
-    height: 10%;
 }
 
 #facingModeButton {
-    z-index: 1;
-    bottom: 2%;
     left: 2%;
     background: #FFFFFF50;
-    position: absolute;
-    height: 10%;
 }
 
-.big-symbol-btn {
+#fullscreenOffBtn {
+    right: 2%;
+    background: #FFFFFF50;
+}
+
+.btn-ui {
+    z-index: 1;
+    bottom: 2%;
+    position: absolute;
     color: white;
     padding: 12px 24px;
     margin: 0;
@@ -66,13 +63,18 @@ canvas {
     border: none;
     background: none;
     cursor: pointer;
-    font-size: 48px;
     line-height: 1;
     transition: transform 0.2s;
 }
 
-.big-symbol-btn:hover {
+.btn-icon {
+    filter: invert(100%) sepia(1%) saturate(16%) hue-rotate(190deg) brightness(116%) contrast(88%);
+}
+
+.btn-ui:hover {
     transform: scale(1.1);
-    color: #4285f4;
-    /* Changes symbol color */
+}
+
+#screenshotBtn:hover {
+    transform: scale(1.1) translateX(-45%);
 }
