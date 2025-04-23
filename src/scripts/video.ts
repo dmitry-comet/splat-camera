@@ -1,11 +1,10 @@
-
 export class VideoEngine {
     public readonly videoCanvas: HTMLCanvasElement;
     private renderCanvas: HTMLCanvasElement;
     public video: HTMLVideoElement;
     private video_frame_id: number | null = null;
     public supports: MediaTrackSupportedConstraints | null = null;
-    public facingMode : string | null = null;
+    public facingMode: string | null = null;
 
     constructor(renderCanvas: HTMLCanvasElement) {
         this.renderCanvas = renderCanvas;
@@ -31,7 +30,8 @@ export class VideoEngine {
             video: true,
         };
 
-        navigator.mediaDevices.getUserMedia(constraints).then(value => this.handleSuccess(value)).catch(reason => this.handleError(reason));
+        const t = this;
+        navigator.mediaDevices.getUserMedia(constraints).then(value => t.handleSuccess(value)).catch(reason => t.handleError(reason));
 
         const facingModeButton = document.getElementById('facingModeButton') as HTMLButtonElement;
 
@@ -41,19 +41,20 @@ export class VideoEngine {
                 e.stopPropagation();
             };
 
+
             // Add a button click listener
             facingModeButton.addEventListener('click', async (ev: Event) => {
                 preventDefault(ev);
 
-                const tracks = (this.video.srcObject as MediaStream).getTracks();
+                const tracks = (t.video.srcObject as MediaStream).getTracks();
                 tracks.forEach(track => track.stop());
 
-                this.facingMode = (this.facingMode === 'user' || this.facingMode == null) ? 'environment' : 'user';
+                t.facingMode = (t.facingMode === 'user' || t.facingMode == null) ? 'environment' : 'user';
 
                 const constraints = {
                     audio: false,
-                    video: this.supports!['facingMode'] ? {
-                        facingMode: {exact: this.facingMode},
+                    video: t.supports!['facingMode'] ? {
+                        facingMode: {exact: t.facingMode},
                     } : {}
                 };
 
@@ -62,9 +63,9 @@ export class VideoEngine {
                     video: true,
                 }));
 
-                this.video!.srcObject = null;
-                this.video!.srcObject = stream;
-                this.video!.play().then();
+                t.video!.srcObject = null;
+                t.video!.srcObject = stream;
+                t.video!.play().then();
             });
         }
     }
@@ -93,7 +94,7 @@ export class VideoEngine {
         const dstSize = screenshotSize(dstH, dstH);
 
         dstW = dstSize.width;
-        dstH  = dstSize.height;
+        dstH = dstSize.height;
 
 
         this.videoCanvas!.width = dstW;
@@ -110,9 +111,10 @@ export class VideoEngine {
             cancelAnimationFrame(this.video_frame_id);
         }
 
+        const t = this;
         setTimeout(() => {
-            this.video_frame_id = requestAnimationFrame(() => {
-                this.videoFrame();
+            t.video_frame_id = requestAnimationFrame(() => {
+                t.videoFrame();
             });
         }, 50);
     }
@@ -125,8 +127,9 @@ export class VideoEngine {
             cancelAnimationFrame(this.video_frame_id);
         }
 
+        const t = this;
         this.video_frame_id = requestAnimationFrame(() => {
-            this.videoFrame();
+            t.videoFrame();
         })
     }
 

@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
+    "target": "es2019",
     "useDefineForClassFields": true,
-    "module": "ESNext",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ES2015",
+    "lib": ["ES2019", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
 
     /* Bundler mode */

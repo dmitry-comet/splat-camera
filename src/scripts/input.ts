@@ -42,6 +42,7 @@ export class InputEngine {
 
                 this.mesh.rotationQuaternion = new Quaternion(
                         (this.startPointerY - ev.clientY) * 0.005, (this.startPointerX - ev.clientX) * 0.005, 0, 1).multiply(this.originalRotation).normalize()
+
                 break;
 
             case ButtonClickState.middle:
@@ -117,9 +118,9 @@ export class InputEngine {
             const centerX = (this.evCache[2].clientX + this.evCache[1].clientX + this.evCache[0].clientX) / 2;
             const centerY = (this.evCache[2].clientY + this.evCache[1].clientY + this.evCache[0].clientY) / 2;
 
-            this.mesh.rotationQuaternion = this.originalRotation.multiply(
-                new Quaternion(
-                    (this.startPointerY - centerY) * 0.005, (this.startPointerX - centerX) * 0.005, 0, 1)).normalize()
+            this.mesh.rotationQuaternion = new Quaternion(
+                (this.startPointerY - centerY) * 0.005, (this.startPointerX - centerX) * 0.005, 0, 1).multiply(this.originalRotation).normalize()
+
         } else if (this.evCache.length == 2) {
             // Calculate the distance between the two pointers
             const curDiff = Math.sqrt(
@@ -174,19 +175,20 @@ export class InputEngine {
 
     public attachToCanvas(canvas:HTMLCanvasElement) {
         this.canvas = canvas;
+        const t = this;
         // Install event handlers for the pointer target
-        canvas.onpointerdown = ev => this.pointerdown_handler(ev);
-        canvas.onpointermove = ev => this.pointermove_handler(ev);
+        canvas.onpointerdown = ev => t.pointerdown_handler(ev);
+        canvas.onpointermove = ev => t.pointermove_handler(ev);
 
-        canvas.onpointerup = ev => this.pointerup_handler(ev);
-        canvas.onpointercancel = ev => this.pointerup_handler(ev);
-        canvas.onpointerout = ev => this.pointerup_handler(ev);
-        canvas.onpointerleave = ev => this.pointerup_handler(ev);
+        canvas.onpointerup = ev => t.pointerup_handler(ev);
+        canvas.onpointercancel = ev => t.pointerup_handler(ev);
+        canvas.onpointerout = ev => t.pointerup_handler(ev);
+        canvas.onpointerleave = ev => t.pointerup_handler(ev);
 
-        canvas.oncontextmenu = ev => this.preventDefault(ev);
-        canvas.ondragover = ev => this.preventDefault(ev);
-        canvas.ondragenter = ev => this.preventDefault(ev);
-        canvas.ondragleave = ev => this.preventDefault(ev);
+        canvas.oncontextmenu = ev => t.preventDefault(ev);
+        canvas.ondragover = ev => t.preventDefault(ev);
+        canvas.ondragenter = ev => t.preventDefault(ev);
+        canvas.ondragleave = ev => t.preventDefault(ev);
     }
 
     public dispose() {

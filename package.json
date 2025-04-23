@@ -9,14 +9,16 @@
     "run": "npm run dev",
     "dev": "tsc && vite --host 192.168.0.51",
     "tsc": "tsc",
-    "dist": "vite build",
+    "dist": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
     "@types/luxon": "^3.6.2",
     "servez": "^2.3.0",
+    "terser": "^5.39.0",
     "typescript": "^5.8.3",
     "vite": "^6.3.2",
+    "vite-plugin-javascript-obfuscator": "^3.1.0",
     "vite-plugin-mkcert": "^1.17.8"
   },
   "dependencies": {
