@@ -1,70 +1,55 @@
 // vite.config.js
 import {defineConfig} from 'vite';
-import obfuscatorPlugin from "vite-plugin-javascript-obfuscator";
+import vitePluginBundleObfuscator from 'vite-plugin-bundle-obfuscator';
 import {dependencies} from './package.json';
 
 function renderChunks(deps: any) {
     let chunks: any = {};
     Object.keys(deps).forEach((key) => {
-        if (['gsplat', '@babylonjs/core', '@babylonjs/loaders', 'luxon'].includes(key)) return;
+        if (['@babylonjs/core', '@babylonjs/loaders', 'luxon', 'gsplat'].includes(key)) return;
         chunks[key] = [key];
     });
     return chunks;
 }
 
 // must be served with ssl for xr to be active
-import mkcert from 'vite-plugin-mkcert'
+import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig({
+    esbuild: {
+      minifySyntax: true,
+      minifyIdentifiers: true,
+      minifyWhitespace: true,
+    },
     plugins: [
         mkcert(),
-        obfuscatorPlugin({
-            // include: ["**/*.ts","**/*.js"],
-            exclude: [/node_modules/, /polyfill/],
-            debugger: true,
+        vitePluginBundleObfuscator({
+            excludes: [/babylonjs/,/luxon/],
+            enable: true,
+            log: true,
+            autoExcludeNodeModules: true,
+            threadPool: { enable: true, size: 10 },
             options: {
                 compact: true,
-                controlFlowFlattening: false,
-                controlFlowFlatteningThreshold: 0.75,
-                deadCodeInjection: true,
-                deadCodeInjectionThreshold: 0.4,
-                debugProtection: false,
+                controlFlowFlattening: true,
+                controlFlowFlatteningThreshold: 1,
+                deadCodeInjection: false,
+                debugProtection: true,
                 debugProtectionInterval: 0,
                 disableConsoleOutput: true,
-                domainLock: [],
-                domainLockRedirectUrl: 'about:blank',
-                forceTransformStrings: [],
-                identifierNamesCache: {},
                 identifierNamesGenerator: 'hexadecimal',
-                identifiersDictionary: [],
-                identifiersPrefix: 'pfx',
-                ignoreImports: false,
-                inputFileName: '',
                 log: false,
-                numbersToExpressions: false,
-                optionsPreset: 'default',
+                numbersToExpressions: true,
+                renameProperties: false,
                 renameGlobals: true,
-                renameProperties: true,
-                renamePropertiesMode: 'safe',
-                reservedNames: ['displayLoadingUI', 'hideLoadingUI', 'meshes', 'scaling', 'FromEulerVector', 'CreatePlane'],
-                reservedStrings: [],
-                seed: 0,
                 selfDefending: true,
-                simplify: false,
-                sourceMap: false,
-                sourceMapBaseUrl: '',
-                sourceMapFileName: '',
-                sourceMapMode: 'separate',
-                sourceMapSourcesMode: 'sources-content',
+                simplify: true,
                 splitStrings: false,
-                splitStringsChunkLength: 10,
+                ignoreImports: true,
                 stringArray: true,
                 stringArrayCallsTransform: true,
                 stringArrayCallsTransformThreshold: 0.5,
                 stringArrayEncoding: [],
-                stringArrayIndexesType: [
-                    'hexadecimal-number'
-                ],
                 stringArrayIndexShift: true,
                 stringArrayRotate: true,
                 stringArrayShuffle: true,
@@ -73,34 +58,18 @@ export default defineConfig({
                 stringArrayWrappersParametersMaxCount: 2,
                 stringArrayWrappersType: 'variable',
                 stringArrayThreshold: 0.75,
-                target: 'browser',
-                transformObjectKeys: true,
-                unicodeEscapeSequence: true
-            },
-        }),
+                unicodeEscapeSequence: false,
+            }
+        })
     ],
-    esbuild: {
-        legalComments: "none",
-        minifyWhitespace: true,
-        minifyIdentifiers: true,
-        minifySyntax: true,
-        keepNames: false,
-    },
     build: {
-        minify: 'terser',
-
-        terserOptions: {
-            compress: true,
-            mangle: true,
-            keep_classnames: false,
-        },
-
+        minify: 'esbuild',
         rollupOptions: {
             input: {
                 main: './index.html',
                 babylon: './src/html/babylon.html',
-                gsplat: './src/html/gsplat.html',
-                gsplatv: './src/html/gsplatv.html',
+                // gsplat: './src/html/gsplat.html',
+                // gsplatv: './src/html/gsplatv.html',
             }
             ,
             output: {
@@ -109,7 +78,7 @@ export default defineConfig({
                 inlineDynamicImports: false,
                 manualChunks: {
                     babylonjs: ['@babylonjs/core', '@babylonjs/loaders'],
-                    gsplatjs: ['gsplat'],
+                    // gsplatjs: ['gsplat'],
                     luxon: ['luxon'],
                     ...renderChunks(dependencies),
                 },

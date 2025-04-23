@@ -95,7 +95,6 @@ class BabylonEngine {
         this.renderCanvas.width = renderSize.width;
         this.renderCanvas.height = renderSize.height;
 
-
         scene.render(false, true);
 
         this.renderCanvas.toBlob(blob => {
@@ -147,7 +146,7 @@ class BabylonEngine {
 
         this.engine?.hideLoadingUI();
 
-        this.splat.position.set(0, 0, -3);
+        this.splat.position.set(0, 0, -10);
         this.splat.scaling.set(1, 1, 1);
         this.splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
@@ -188,17 +187,23 @@ class BabylonEngine {
 
         this.inputEngine.attachToCanvas(this.renderCanvas);
 
-        this.engine?.runRenderLoop(this.renderLoopFunc);
+        if (this.engine != null) {
+            this.engine.runRenderLoop(() => t.renderLoopFunc());
+        }
     }
 
     scalePlane() {
-        const c = this.sceneToRender?.activeCamera!;
-        const fov = c.fov;
-        const aspectRatio = this.engine!.getAspectRatio(c);
-        const d = c.position.length();
-        const y = 2 * d * Math.tan(fov / 2);
-        const x = y * aspectRatio;
-        this.plane?.scaling.set(x, y, 1);
+        if (this.scene != null && this.engine != null && this.plane != null) {
+            const activeCamera = this.scene!.activeCamera;
+            if (activeCamera != null) {
+                const fov = activeCamera.fov;
+                const aspectRatio = this.engine.getAspectRatio(activeCamera);
+                const distance = activeCamera.position.length();
+                const y = 2 * distance * Math.tan(fov / 2);
+                const x = y * aspectRatio;
+                this.plane.scaling.set(x, y, 1);
+            }
+        }
     }
 }
 
