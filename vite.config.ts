@@ -6,7 +6,7 @@ import {dependencies} from './package.json';
 function renderChunks(deps: any) {
     let chunks: any = {};
     Object.keys(deps).forEach((key) => {
-        if (['@babylonjs/core', '@babylonjs/loaders', 'luxon', 'gsplat'].includes(key)) return;
+        if (['@babylonjs/core', '@babylonjs/loaders', 'luxon'].includes(key)) return;
         chunks[key] = [key];
     });
     return chunks;
@@ -17,18 +17,18 @@ import mkcert from 'vite-plugin-mkcert';
 
 export default defineConfig({
     esbuild: {
-      minifySyntax: true,
-      minifyIdentifiers: true,
-      minifyWhitespace: true,
+        minifySyntax: true,
+        minifyIdentifiers: true,
+        minifyWhitespace: true,
     },
     plugins: [
         mkcert(),
         vitePluginBundleObfuscator({
-            excludes: [/babylonjs/,/luxon/],
+            excludes: [/babylonjs/, /luxon/, /lq.js/, /hq.js/],
             enable: true,
             log: true,
             autoExcludeNodeModules: true,
-            threadPool: { enable: true, size: 10 },
+            threadPool: {enable: true, size: 10},
             options: {
                 compact: true,
                 controlFlowFlattening: true,
