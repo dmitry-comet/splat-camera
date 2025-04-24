@@ -67,9 +67,8 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: './index.html',
-                babylon: './src/html/babylon.html',
-                // gsplat: './src/html/gsplat.html',
-                // gsplatv: './src/html/gsplatv.html',
+                lq: './src/html/lq.html',
+                hq: './src/html/hq.html',
             }
             ,
             output: {
@@ -78,7 +77,6 @@ export default defineConfig({
                 inlineDynamicImports: false,
                 manualChunks: {
                     babylonjs: ['@babylonjs/core', '@babylonjs/loaders'],
-                    // gsplatjs: ['gsplat'],
                     luxon: ['luxon'],
                     ...renderChunks(dependencies),
                 },

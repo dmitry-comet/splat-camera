@@ -1,12 +1,17 @@
+import {log} from "./log.ts";
+
 export class VideoEngine {
     public readonly video: HTMLVideoElement;
     public supports: MediaTrackSupportedConstraints | null = null;
     public facingMode: string | null = null;
+    private onVideoResize: () => void;
 
-    constructor() {
+    constructor(onVideoResize: () => void) {
+        this.onVideoResize = onVideoResize;
+
         this.video = document.createElement('video') as HTMLVideoElement;
         this.video.disablePictureInPicture = true;
-        this.video.autoplay = true;
+        this.video.autoplay = false;
         this.video.controls = false;
         this.video.playsInline = true;
 
@@ -54,19 +59,28 @@ export class VideoEngine {
 
                 t.video!.srcObject = null;
                 t.video!.srcObject = stream;
-                t.video!.play().then();
+                t.video!.play().then(_value => {
+                    t.onVideoResize();
+                });
+
             });
         }
+
+
     }
 
 
-
-    private handleSuccess(stream: MediaProvider) {
+    private handleSuccess(stream: MediaStream) {
         this.video.srcObject = stream;
+
+        const t = this;
+        this.video!.play().then(_value => {
+            t.onVideoResize();
+        });
     }
 
     private handleError(error: any) {
-        console.log('navigator.MediaDevices.getUserMedia error: ', error.message, error.name, error.stack);
+        log(`navigator.MediaDevices.getUserMedia error: ${error.message}, ${error.name}$, {error.stack}`);
     }
 
 }

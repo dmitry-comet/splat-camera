@@ -1,14 +1,13 @@
 import {
     AbstractMesh,
     ArcRotateCamera,
-    Color4,
-    Constants,
+    Color4, Constants,
     Engine,
     ImportMeshAsync, ISceneLoaderAsyncResult,
     Mesh,
-    MeshBuilder, Quaternion,
-    Scene,
-    StandardMaterial,
+    MeshBuilder,
+    Quaternion,
+    Scene, StandardMaterial,
     Vector3, VideoTexture,
 } from '@babylonjs/core';
 
@@ -20,6 +19,7 @@ import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
 import {VideoEngine} from "./video.ts";
 import {FullscreenEngine} from "./fullscreen.ts";
 import {InputEngine} from "./input.ts";
+import {log} from "./log.ts";
 
 class BabylonEngine {
     videoEngine: VideoEngine | null = null;
@@ -63,8 +63,6 @@ class BabylonEngine {
         // scene.useOrderIndependentTransparency = true;
         this.scene!.clearColor = new Color4(0, 0, 0, 0); // RGBA (0-1 range)
 
-        this.videoEngine = new VideoEngine();
-
         FullscreenEngine.init();
 
         const t = this;
@@ -72,11 +70,27 @@ class BabylonEngine {
         // Resize
         window.addEventListener('resize', function () {
             t.engine?.resize();
-            t.alignPlane();
+            t.alignPlane('resize');
         });
     }
 
-    renderLoopFunc() {
+
+    private splat_frame_id: number | null = null;
+
+    renderScene() {
+        if (this.splat_frame_id != null) {
+            cancelAnimationFrame(this.splat_frame_id);
+        }
+
+        const t = this;
+
+        this.splat_frame_id = requestAnimationFrame(() => {
+            t.videoTexture?.update();
+            t.renderFrame()
+        });
+    }
+
+    renderFrame() {
         if (this.scene != null && this.scene.activeCamera) {
             this.scene.render(false, true);
         }
@@ -98,7 +112,6 @@ class BabylonEngine {
             a.href = URL.createObjectURL(blob!);
             a.download = `splat_${DateTime.now().toFormat('yyyy_LL_dd_HH_mm_ss')}.jpg`;
             a.click();
-            console.log(`Success! Saved cropped splat as splat.png`);
         }, 'image/jpeg', 1);
 
         this.renderCanvas.width = backup.width;
@@ -146,6 +159,11 @@ class BabylonEngine {
         this.splat.scaling.set(1, 1, 1);
         this.splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
+        const t = this;
+
+        this.videoEngine = new VideoEngine(() => {
+            t.alignPlane('video engine callback');
+        });
 
         this.videoTexture = new VideoTexture('vt', this.videoEngine?.video!, this.scene, false, false, Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
             {
@@ -154,11 +172,6 @@ class BabylonEngine {
                 autoUpdateTexture: true,
             });
 
-        const t = this;
-
-        window.setInterval(() => {
-            t.videoTexture?.update();
-        }, 50);
 
         // this is the plane that will show the RTT.
         this.plane = MeshBuilder.CreatePlane('plane', {width: 1, height: 1}, this.scene);
@@ -172,22 +185,25 @@ class BabylonEngine {
         rttMaterial.disableLighting = true;
         this.plane.material = rttMaterial;
 
-        this.alignPlane();
+
+        this.inputEngine = new InputEngine(this.splat!, () => {
+            t.renderScene();
+        });
 
         this.scene!.onDispose = function () {
             t.inputEngine?.dispose()
         };
 
-        this.inputEngine = new InputEngine(this.splat!);
 
         this.inputEngine.attachToCanvas(this.renderCanvas);
 
         if (this.engine != null) {
-            this.engine.runRenderLoop(() => t.renderLoopFunc());
+            this.engine.runRenderLoop(() => t.renderFrame());
         }
     }
 
-    alignPlane() {
+
+    alignPlane(tag: string) {
         if (this.scene != null && this.engine != null && this.plane != null && this.videoEngine != null) {
             const activeCamera = this.scene!.activeCamera;
             if (activeCamera != null) {
@@ -202,8 +218,12 @@ class BabylonEngine {
                     this.videoEngine.video.videoHeight,
                     outputW, outputH);
 
+                log(`on video resize (${tag}): ${JSON.stringify(videoSize)}`);
+
                 this.plane.scaling.set(videoSize.width, videoSize.height, 1);
             }
+        } else {
+            // log(`${tag} NO VIDEO`);
         }
     }
 
@@ -212,8 +232,8 @@ class BabylonEngine {
         const dstAspect = dstW / dstH;
         let offsetX: number;
         let offsetY: number;
-        let width: number = 0;
-        let height: number = 0;
+        let width: number;
+        let height: number;
 
         if (srcAspect > dstAspect) {
             width = dstH * srcAspect;

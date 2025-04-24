@@ -19,8 +19,10 @@ export class InputEngine {
     mesh: AbstractMesh;
 
     originalRotation: Quaternion;
+    private onChanged: () => void;
 
-    constructor(mesh: AbstractMesh) {
+    constructor(mesh: AbstractMesh, onChanged: () => void) {
+        this.onChanged = onChanged;
         this.mesh = mesh;
         this.originalRotation = mesh.rotationQuaternion ?? Quaternion.FromEulerVector(new Vector3(0, 0, 0));
     }
@@ -41,7 +43,7 @@ export class InputEngine {
                 console.log(`this.mesh.rotationQuaternion: ${this.mesh.rotationQuaternion}`);
 
                 this.mesh.rotationQuaternion = new Quaternion(
-                        (this.startPointerY - ev.clientY) * 0.005, (this.startPointerX - ev.clientX) * 0.005, 0, 1).multiply(this.originalRotation).normalize()
+                    (this.startPointerY - ev.clientY) * 0.005, (this.startPointerX - ev.clientX) * 0.005, 0, 1).multiply(this.originalRotation).normalize()
 
                 break;
 
@@ -54,6 +56,8 @@ export class InputEngine {
 
         this.lastPointerX = ev.clientX;
         this.lastPointerY = ev.clientY;
+
+        this.onChanged();
     }
 
 
@@ -121,6 +125,7 @@ export class InputEngine {
             this.mesh.rotationQuaternion = new Quaternion(
                 (this.startPointerY - centerY) * 0.005, (this.startPointerX - centerX) * 0.005, 0, 1).multiply(this.originalRotation).normalize()
 
+            this.onChanged();
         } else if (this.evCache.length == 2) {
             // Calculate the distance between the two pointers
             const curDiff = Math.sqrt(
@@ -137,6 +142,7 @@ export class InputEngine {
 
             // Cache the distance for the next move event
             this.prevDiff = curDiff;
+            this.onChanged();
         }
 
         this.preventDefault(ev);
@@ -171,9 +177,9 @@ export class InputEngine {
         e.stopPropagation();
     };
 
-    canvas:HTMLCanvasElement | null = null;
+    canvas: HTMLCanvasElement | null = null;
 
-    public attachToCanvas(canvas:HTMLCanvasElement) {
+    public attachToCanvas(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
         const t = this;
         // Install event handlers for the pointer target
@@ -203,6 +209,6 @@ export class InputEngine {
             this.canvas.onpointerleave = null;
         }
     }
-    
-    
+
+
 }
