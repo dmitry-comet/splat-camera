@@ -3,13 +3,13 @@ import {
     ArcRotateCamera,
     Color4,
     Constants,
-    Engine, HtmlElementTexture,
+    Engine,
     ImportMeshAsync, ISceneLoaderAsyncResult,
     Mesh,
     MeshBuilder, Quaternion,
     Scene,
     StandardMaterial,
-    Vector3,
+    Vector3, VideoTexture,
 } from '@babylonjs/core';
 
 import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
@@ -17,28 +17,26 @@ import {registerBuiltInLoaders} from '@babylonjs/loaders/dynamic';
 import {DateTime} from 'luxon';
 
 import {DefaultLoadingScreen} from '@babylonjs/core/Loading/loadingScreen';
-import {screenshotSize, VideoEngine} from "./video.ts";
+import {VideoEngine} from "./video.ts";
 import {FullscreenEngine} from "./fullscreen.ts";
 import {InputEngine} from "./input.ts";
 
 class BabylonEngine {
     videoEngine: VideoEngine | null = null;
 
-    videoTexture: HtmlElementTexture | null = null;
+    videoTexture: VideoTexture | null = null;
 
-    readonly renderCanvas : HTMLCanvasElement;
+    readonly renderCanvas: HTMLCanvasElement;
 
     engine: Engine | null = null;
 
     scene: Scene | null = null;
 
-    sceneToRender: Scene | null = null;
-
     splat: AbstractMesh | null = null;
 
     inputEngine: InputEngine | null = null;
 
-    readonly loadingScreen : DefaultLoadingScreen;
+    readonly loadingScreen: DefaultLoadingScreen;
 
     plane: Mesh | null = null;
 
@@ -65,9 +63,7 @@ class BabylonEngine {
         // scene.useOrderIndependentTransparency = true;
         this.scene!.clearColor = new Color4(0, 0, 0, 0); // RGBA (0-1 range)
 
-        this.sceneToRender = this.scene;
-
-        this.videoEngine = new VideoEngine(this.renderCanvas);
+        this.videoEngine = new VideoEngine();
 
         FullscreenEngine.init();
 
@@ -76,13 +72,13 @@ class BabylonEngine {
         // Resize
         window.addEventListener('resize', function () {
             t.engine?.resize();
-            t.scalePlane();
+            t.alignPlane();
         });
     }
 
     renderLoopFunc() {
-        if (this.sceneToRender != null && this.sceneToRender.activeCamera) {
-            this.sceneToRender.render(false, true);
+        if (this.scene != null && this.scene.activeCamera) {
+            this.scene.render(false, true);
         }
     }
 
@@ -90,7 +86,7 @@ class BabylonEngine {
 
         const backup = {width: this.renderCanvas.width, height: this.renderCanvas.height};
 
-        let renderSize = screenshotSize(this.renderCanvas.width, this.renderCanvas.height);
+        let renderSize = this.screenshotSize(this.renderCanvas.width, this.renderCanvas.height);
 
         this.renderCanvas.width = renderSize.width;
         this.renderCanvas.height = renderSize.height;
@@ -151,12 +147,11 @@ class BabylonEngine {
         this.splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
 
-        this.videoTexture = new HtmlElementTexture('vt', this.videoEngine?.videoCanvas!,
+        this.videoTexture = new VideoTexture('vt', this.videoEngine?.video!, this.scene, false, false, Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
             {
-                scene: this.scene,
-                engine: this.engine,
-                samplingMode: Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
-                generateMipMaps: false,
+                autoPlay: true,
+                independentVideoSource: true,
+                autoUpdateTexture: true,
             });
 
         const t = this;
@@ -177,7 +172,7 @@ class BabylonEngine {
         rttMaterial.disableLighting = true;
         this.plane.material = rttMaterial;
 
-        this.scalePlane();
+        this.alignPlane();
 
         this.scene!.onDispose = function () {
             t.inputEngine?.dispose()
@@ -192,18 +187,59 @@ class BabylonEngine {
         }
     }
 
-    scalePlane() {
-        if (this.scene != null && this.engine != null && this.plane != null) {
+    alignPlane() {
+        if (this.scene != null && this.engine != null && this.plane != null && this.videoEngine != null) {
             const activeCamera = this.scene!.activeCamera;
             if (activeCamera != null) {
                 const fov = activeCamera.fov;
                 const aspectRatio = this.engine.getAspectRatio(activeCamera);
                 const distance = activeCamera.position.length();
-                const y = 2 * distance * Math.tan(fov / 2);
-                const x = y * aspectRatio;
-                this.plane.scaling.set(x, y, 1);
+                const outputH = 2 * distance * Math.tan(fov / 2);
+                const outputW = outputH * aspectRatio;
+
+                const videoSize = this.videoSize(
+                    this.videoEngine.video.videoWidth,
+                    this.videoEngine.video.videoHeight,
+                    outputW, outputH);
+
+                this.plane.scaling.set(videoSize.width, videoSize.height, 1);
             }
         }
+    }
+
+    videoSize(srcW: number, srcH: number, dstW: number, dstH: number) {
+        const srcAspect = srcW / srcH;
+        const dstAspect = dstW / dstH;
+        let offsetX: number;
+        let offsetY: number;
+        let width: number = 0;
+        let height: number = 0;
+
+        if (srcAspect > dstAspect) {
+            width = dstH * srcAspect;
+            height = dstH;
+            offsetX = (dstW - width) / 2;
+            offsetY = 0;
+        } else {
+            width = dstW;
+            height = dstW / srcAspect;
+            offsetX = 0;
+            offsetY = (dstH - height) / 2;
+        }
+
+        return {x: offsetX, y: offsetY, width: width, height: height};
+    }
+
+    screenshotSize(srcW: number, srcH: number, size: number = 2160) {
+        return srcW > srcH ?
+            {
+                width: size,
+                height: srcH * size / srcW
+            } :
+            {
+                width: srcW * size / srcH,
+                height: size
+            };
     }
 }
 
