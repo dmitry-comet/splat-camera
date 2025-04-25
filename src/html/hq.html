@@ -2,6 +2,7 @@
 <html lang="en">
 	<head>
 		<link rel="stylesheet" href="../css/babylon.css" />
+		<link rel="stylesheet" href="../css/mesh_control.css" />
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Babylon.js</title>
@@ -38,6 +39,33 @@
 			<!--    <span id="log" class="log"></span>-->
 		</div>
 
+		<div id="buttons" class="flex-buttons">
+			<button id="toggleControlsButton" class="big-symbol-btn" style="display: none;">⚙️</button>
+			<button id="resetButton" class="big-symbol-btn" style="display: none;">🔄</button>
+		</div>
+		
+		<div id="controlButtons" style="display: none;">
+			<button id="moveLeftButton" class="big-symbol-btn">◀</button>
+			<button id="moveRightButton" class="big-symbol-btn">▶</button>
+			<button id="moveTopButton" class="big-symbol-btn">▲</button>
+			<button id="moveBottomButton" class="big-symbol-btn">▼</button>
+		  
+			<div id="rotateButtons" class="flex-buttons">
+				<button id="rotateTopButton" class="big-symbol-btn">↶X</button>
+				<button id="rotateBottomButton" class="big-symbol-btn">X↷</button>
+				<button id="rotateLeftButton" class="big-symbol-btn">↶Y</button>
+				<button id="rotateRightButton" class="big-symbol-btn">Y↷</button>
+				<button id="rotateFrontButton" class="big-symbol-btn">↶Z</button>
+				<button id="rotateBackButton" class="big-symbol-btn">Z↷</button>
+			</div>
+		  
+			<div id="zoomButtons" class="flex-buttons">
+				<button id="zoomInButton" class="big-symbol-btn">➕</button>
+				<button id="zoomOutButton" class="big-symbol-btn">➖</button>
+			</div>
+		</div>
+
 		<script src="/src/scripts/babylon.ts" type="module"></script>
+		<script src="/src/scripts/mesh_control.ts" type="module"></script>
 	</body>
 </html>

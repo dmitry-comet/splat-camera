@@ -25,6 +25,8 @@ import { FullscreenEngine } from './fullscreen.ts';
 import { InputEngine } from './input.ts';
 import { log } from './log.ts';
 
+import { Control as MeshControl } from './mesh_control.ts';
+
 class BabylonEngine {
 	private videoEngine: VideoEngine | null = null;
 
@@ -218,6 +220,8 @@ class BabylonEngine {
 		if (this.engine != null) {
 			this.engine.runRenderLoop(() => this.renderFrame());
 		}
+
+		new MeshControl(this.scene!, this.splat);
 	}
 
 	private alignPlane(tag: string) {
