@@ -3,6 +3,7 @@ import { AbstractMesh } from "@babylonjs/core";
 import { ArcRotateCamera } from "@babylonjs/core";
 import { Vector3 } from "@babylonjs/core";
 import { Matrix } from "@babylonjs/core";
+import { Quaternion } from "@babylonjs/core";
 
 export class Control {
     /**
@@ -104,27 +105,51 @@ export class Control {
         // Rotate
 
         if (rotateTopButton != null) {
-            rotateTopButton.addEventListener('click', () => { mesh.rotation.x += rotateSpeed; });
+            rotateTopButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(rotateSpeed, 0, 0, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         if (rotateBottomButton != null) {
-            rotateBottomButton.addEventListener('click', () => { mesh.rotation.x -= rotateSpeed; });
+            rotateBottomButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(-rotateSpeed, 0, 0, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         if (rotateLeftButton != null) {
-            rotateLeftButton.addEventListener('click', () => { mesh.rotation.y -= rotateSpeed; });
+            rotateLeftButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(0, rotateSpeed, 0, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         if (rotateRightButton != null) {
-            rotateRightButton.addEventListener('click', () => { mesh.rotation.y += rotateSpeed; });
+            rotateRightButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(0, -rotateSpeed, 0, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         if (rotateFrontButton != null) {
-            rotateFrontButton.addEventListener('click', () => { mesh.rotation.z -= rotateSpeed; });
+            rotateFrontButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(0, 0, rotateSpeed, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         if (rotateBackButton != null) {
-            rotateBackButton.addEventListener('click', () => { mesh.rotation.z += rotateSpeed; });
+            rotateBackButton.addEventListener('click', () => {
+                mesh.rotationQuaternion = new Quaternion(0, 0, -rotateSpeed, 1)
+                    .multiply(mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero()))
+                    .normalize();
+            });
         }
 
         // Zoom
