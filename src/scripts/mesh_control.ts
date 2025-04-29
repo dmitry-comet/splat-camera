@@ -67,19 +67,21 @@ export class Control {
 
         if (resetButton != null) {
             resetButton.addEventListener('click', () => {
-                if (scene && scene.activeCamera instanceof ArcRotateCamera) {
-                    scene.activeCamera.alpha = initialAlpha;
-                    scene.activeCamera.beta = initialBeta;
-                    scene.activeCamera.radius = initialRadius;
-                    scene.activeCamera.target = initialTarget;
-                }
-
-                if (mesh) {
-                    mesh.setPivotMatrix(Matrix.Identity());
-                    mesh.position = Vector3.Zero();
-                    mesh.rotation = Vector3.Zero();
-                    mesh.scaling = new Vector3(1, 1, 1);
-                    mesh.computeWorldMatrix(true);
+                if (confirm("Reset layout to default?")) {
+                    if (scene && scene.activeCamera instanceof ArcRotateCamera) {
+                        scene.activeCamera.alpha = initialAlpha;
+                        scene.activeCamera.beta = initialBeta;
+                        scene.activeCamera.radius = initialRadius;
+                        scene.activeCamera.target = initialTarget;
+                    }
+    
+                    if (mesh) {
+                        mesh.setPivotMatrix(Matrix.Identity());
+                        mesh.position = Vector3.Zero();
+                        mesh.rotation = Vector3.Zero();
+                        mesh.scaling = new Vector3(1, 1, 1);
+                        mesh.computeWorldMatrix(true);
+                    }
                 }
             });
         }

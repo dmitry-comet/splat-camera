@@ -4,6 +4,7 @@ import {
 	Color4,
 	Constants,
 	Engine,
+	ILoadingScreen,
 	ImportMeshAsync,
 	ISceneLoaderAsyncResult,
 	Mesh,
@@ -19,10 +20,10 @@ import { registerBuiltInLoaders } from '@babylonjs/loaders/dynamic';
 
 import { DateTime } from 'luxon';
 
-import { DefaultLoadingScreen } from '@babylonjs/core/Loading/loadingScreen';
 import { VideoEngine } from './video.ts';
 import { FullscreenEngine } from './fullscreen.ts';
 import { InputEngine } from './input.ts';
+import { TextLoadingScreen } from './loading_screen.ts';
 import { log } from './log.ts';
 
 import { Control as MeshControl } from './mesh_control.ts';
@@ -42,7 +43,7 @@ class BabylonEngine {
 
 	private inputEngine: InputEngine | null = null;
 
-	private readonly loadingScreen: DefaultLoadingScreen;
+	private readonly loadingScreen: ILoadingScreen;
 
 	private plane: Mesh | null = null;
 
@@ -52,7 +53,7 @@ class BabylonEngine {
 		registerBuiltInLoaders();
 
 		this.renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
-		this.loadingScreen = new DefaultLoadingScreen(this.renderCanvas, 'Loading', 'black');
+		this.loadingScreen = new TextLoadingScreen(this.renderCanvas, 'Loading...', 'black');
 
 		this.engine = new Engine(this.renderCanvas, false, {
 			preserveDrawingBuffer: true,
@@ -170,6 +171,8 @@ class BabylonEngine {
 		this.splat = result.meshes[0];
 
 		this.engine?.hideLoadingUI();
+
+		(document.getElementById("mainButtons") as HTMLElement).style.display = "flex";
 
 		this.splat.position.set(0, 0, -10);
 		this.splat.scaling.set(1, 1, 1);
