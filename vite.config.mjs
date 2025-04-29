@@ -4,6 +4,37 @@ import { defineConfig } from "vite";
 import vitePluginBundleObfuscator from "vite-plugin-bundle-obfuscator";
 import { dependencies } from "./package.json";
 
+import { fileURLToPath } from 'url'
+import path from 'path'
+import fs from 'fs'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+function getHtmlExcludes() {
+	console.log(`${__dirname}`);
+
+	const pagesDir = path.resolve(__dirname, 'src/html');
+	const files = fs.readdirSync(pagesDir);
+	return files
+		.filter(file => file.endsWith('.html'))
+		.map((file) => {
+			return file.replace('.html', '.js');
+		});
+}
+
+function getHtmlInputs() {
+	console.log(`${__dirname}`);
+
+	const pagesDir = path.resolve(__dirname, 'src/html');
+	const files = fs.readdirSync(pagesDir);
+	return files
+		.filter(file => file.endsWith('.html'))
+		.reduce((acc, file) => {
+			acc[path.parse(file).name] = path.resolve(pagesDir, file)
+			return acc
+		}, {});
+}
+
 function renderChunks(deps) {
 	const chunks = {};
 	Object.keys(deps).forEach((key) => {
@@ -24,7 +55,12 @@ export default defineConfig({
 	plugins: [
 		mkcert(),
 		vitePluginBundleObfuscator({
-			excludes: [/babylonjs/, /luxon/, /lq.js/, /hq.js/],
+			excludes: [
+				/babylonjs/,
+				/luxon/,
+				"babylon.js",
+				...getHtmlExcludes()
+			],
 			enable: true,
 			log: true,
 			autoExcludeNodeModules: true,
@@ -66,9 +102,8 @@ export default defineConfig({
 		minify: "esbuild",
 		rollupOptions: {
 			input: {
-				main: "./index.html",
-				lq: "./src/html/lq.html",
-				hq: "./src/html/hq.html"
+				main: path.resolve(__dirname, 'index.html'),
+				...getHtmlInputs()
 			},
 			output: {
 				compact: true,
