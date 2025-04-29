@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "run": "npm run dev",
-    "dev": "tsc && vite --host 192.168.0.51",
+    "dev": "tsc && vite --host 192.168.1.85",
     "tsc": "tsc",
     "dist": "tsc && vite build",
     "preview": "vite preview",

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<link rel="stylesheet" href="../css/babylon.css" />
+		<link rel="stylesheet" href="../css/mesh_control.css" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Model</title>
+	</head>
+
+	<body>
+		<input
+			id="splat_url"
+			type="hidden"
+			value="https://cdn.glitch.me/6e942640-61a8-40d7-a722-6d24ebe49c9a/FOX0429.splat?v=1745933585843"
+		/>
+
+		<!--<div id="videoScreen" style="display: none"></div>-->
+		<div id="videoScreen"></div>
+
+		<div id="viewElement">
+			<canvas id="renderCanvas"></canvas>
+			<div id="mainButtons" style="display: none;">
+				<button id="facingModeButton" class="btn-ui">
+					<img class="btn-icon" src="../images/switch.png" height="20" width="20" />
+				</button>
+				<button id="screenshotBtn" class="btn-ui">
+					<img class="btn-icon" src="../images/record.png" height="20px" width="20px" />
+				</button>
+				<button id="fullscreenBtn" class="btn-ui" style="display: inline">
+					<img class="btn-icon" src="../images/fullscreen.png" height="20" width="20" />
+				</button>
+				<button id="fullscreenOffBtn" class="btn-ui" style="display: none">
+					<img class="btn-icon" src="../images/fullscreen_off.png" height="20" width="20" />
+				</button>
+			</div>
+			<span id="log" class="log" style="display: none"></span>
+			<!--    <span id="log" class="log"></span>-->
+		</div>
+
+		<div id="buttons" class="flex-buttons">
+			<button id="toggleControlsButton" class="big-symbol-btn" style="display: none;">⚙️</button>
+			<button id="resetButton" class="big-symbol-btn" style="display: none;">🔄</button>
+		</div>
+		
+		<div id="controlButtons" style="display: none;">
+			<button id="moveLeftButton" class="big-symbol-btn">◀</button>
+			<button id="moveRightButton" class="big-symbol-btn">▶</button>
+			<button id="moveTopButton" class="big-symbol-btn">▲</button>
+			<button id="moveBottomButton" class="big-symbol-btn">▼</button>
+		  
+			<div id="rotateButtons" class="flex-buttons">
+				<button id="rotateTopButton" class="big-symbol-btn">↶X</button>
+				<button id="rotateBottomButton" class="big-symbol-btn">X↷</button>
+				<button id="rotateLeftButton" class="big-symbol-btn">↶Y</button>
+				<button id="rotateRightButton" class="big-symbol-btn">Y↷</button>
+				<button id="rotateFrontButton" class="big-symbol-btn">↶Z</button>
+				<button id="rotateBackButton" class="big-symbol-btn">Z↷</button>
+			</div>
+		  
+			<div id="zoomButtons" class="flex-buttons">
+				<button id="zoomInButton" class="big-symbol-btn">➕</button>
+				<button id="zoomOutButton" class="big-symbol-btn">➖</button>
+			</div>
+		</div>
+
+		<script src="/src/scripts/babylon.ts" type="module"></script>
+	</body>
+</html>
