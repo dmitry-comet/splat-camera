@@ -25,7 +25,7 @@ export class Control {
         zoomSpeed: number = 0.2,
         initialAlpha: number = -Math.PI / 2,
         initialBeta: number = Math.PI / 2,
-        initialRadius: number = 10,
+        initialRadius: number = 20,
         initialTarget: Vector3 = Vector3.Zero(),
     ) {
         const toggleControlsButton = document.getElementById("toggleControlsButton");
@@ -74,11 +74,11 @@ export class Control {
                         scene.activeCamera.radius = initialRadius;
                         scene.activeCamera.target = initialTarget;
                     }
-    
+
                     if (mesh) {
                         mesh.setPivotMatrix(Matrix.Identity());
-                        mesh.position = Vector3.Zero();
-                        mesh.rotation = Vector3.Zero();
+                        mesh.position = new Vector3(0, 0, -10);
+                        mesh.rotationQuaternion = Quaternion.FromEulerVector(Vector3.Zero());
                         mesh.scaling = new Vector3(1, 1, 1);
                         mesh.computeWorldMatrix(true);
                     }
