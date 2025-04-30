@@ -52,8 +52,10 @@ class BabylonEngine {
 	constructor() {
 		registerBuiltInLoaders();
 
+		const loadingText = 'Loading. Could take a while.';
+
 		this.renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
-		this.loadingScreen = new TextLoadingScreen(this.renderCanvas, 'Loading. Could take a while.', 'black');
+		this.loadingScreen = new TextLoadingScreen(this.renderCanvas, loadingText, 'black');
 
 		this.engine = new Engine(this.renderCanvas, false, {
 			preserveDrawingBuffer: true,
@@ -85,6 +87,13 @@ class BabylonEngine {
 			engine?.resize();
 			ap('resize');
 		});
+
+		const loading = document.getElementById('loading');
+
+		if (loading) {
+			loading.innerHTML = loadingText;
+			window.addEventListener('load', () => { loading.style.display = 'none'; loading.style.zIndex = "0"; });
+		}
 	}
 
 	private renderScene() {
