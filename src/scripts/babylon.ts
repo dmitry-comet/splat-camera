@@ -53,7 +53,7 @@ class BabylonEngine {
 		registerBuiltInLoaders();
 
 		this.renderCanvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
-		this.loadingScreen = new TextLoadingScreen(this.renderCanvas, 'Loading...', 'black');
+		this.loadingScreen = new TextLoadingScreen(this.renderCanvas, 'Loading. Could take a while.', 'black');
 
 		this.engine = new Engine(this.renderCanvas, false, {
 			preserveDrawingBuffer: true,

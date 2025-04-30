@@ -58,11 +58,10 @@ export class TextLoadingScreen implements ILoadingScreen {
         this._loadingTextDiv.style.width = "100%";
         this._loadingTextDiv.style.height = "20px";
         this._loadingTextDiv.style.fontFamily = "Arial";
-        this._loadingTextDiv.style.fontSize = "50px";
+        this._loadingTextDiv.style.fontSize = "32px";
         this._loadingTextDiv.style.color = "white";
         this._loadingTextDiv.style.textAlign = "center";
         this._loadingTextDiv.style.zIndex = "1";
-        this._loadingTextDiv.innerHTML = "Loading";
 
         loadingDiv.appendChild(this._loadingTextDiv);
 
