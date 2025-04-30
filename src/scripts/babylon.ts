@@ -178,6 +178,8 @@ class BabylonEngine {
 		this.splat.scaling.set(1, 1, 1);
 		this.splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
+		BabylonEngine.attachDiscToMesh(this.scene!, this.splat);
+
 		this.videoEngine = new VideoEngine(() => {
 			this.alignPlane('video engine callback');
 		});
@@ -284,13 +286,45 @@ class BabylonEngine {
 	private screenshotSize(srcW: number, srcH: number, size: number = 2160) {
 		return srcW > srcH
 			? {
-					width: size,
-					height: (srcH * size) / srcW,
-				}
+				width: size,
+				height: (srcH * size) / srcW,
+			}
 			: {
-					width: (srcW * size) / srcH,
-					height: size,
-				};
+				width: (srcW * size) / srcH,
+				height: size,
+			};
+	}
+
+	private static attachDiscToMesh(scene: Scene, mesh: AbstractMesh) {
+		const boundingInfo = mesh.getBoundingInfo();
+		const min = boundingInfo.boundingBox.minimum;
+		const max = boundingInfo.boundingBox.maximum;
+
+		// Calculate effective dimensions
+		const width = max.x - min.x;
+		const depth = max.z - min.z;
+
+		// Create disc with radius matching the splat's horizontal extent
+		const discRadius = Math.max(width, depth) * 0.5;
+
+		const disc = MeshBuilder.CreateDisc(
+			"disc",
+			{ radius: discRadius, tessellation: 64 },
+			scene
+		);
+
+		disc.parent = mesh;
+		disc.position.set(
+			0,
+			min.y - 0.2 /* add some margin*/,
+			depth / 2
+		);
+		disc.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(Math.PI / 2, 0, 0));
+
+		// Create material and disable backface culling
+		const discMaterial = new StandardMaterial("discMaterial", scene);
+		discMaterial.backFaceCulling = false; // This makes both sides visible
+		disc.material = discMaterial;
 	}
 }
 
