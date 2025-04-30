@@ -22,7 +22,9 @@ export class VideoEngine {
 
 		const constraints = {
 			audio: false,
-			video: true,
+			video: {
+				facingMode: 'environment',  // This specifies the rear camera
+			},
 		};
 
 		navigator.mediaDevices
@@ -52,8 +54,8 @@ export class VideoEngine {
 					audio: false,
 					video: this.supports!['facingMode']
 						? {
-								facingMode: { exact: this.facingMode },
-							}
+							facingMode: { exact: this.facingMode },
+						}
 						: {},
 				};
 
