@@ -77,7 +77,7 @@ export class InputEngine {
 	}
 
 	onPointerUp() {
-		this.originalRotation = this.mesh.rotationQuaternion ?? Quaternion.Zero();
+		this.originalRotation = this.mesh.rotationQuaternion ?? Quaternion.FromEulerVector(Vector3.Zero());
 		this.buttonState = ButtonClickState.none;
 	}
 
