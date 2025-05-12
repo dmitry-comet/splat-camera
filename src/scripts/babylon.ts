@@ -29,6 +29,8 @@ import { log } from './log.ts';
 import { Control as MeshControl } from './mesh_control.ts';
 
 class BabylonEngine {
+	private showVideo: boolean;
+
 	private videoEngine: VideoEngine | null = null;
 
 	private videoTexture: VideoTexture | null = null;
@@ -49,7 +51,9 @@ class BabylonEngine {
 
 	private splat_frame_id: number | null = null;
 
-	constructor() {
+	constructor(showVideo: boolean) {
+		this.showVideo = showVideo;
+
 		registerBuiltInLoaders();
 
 		const loadingText = 'Loading. Could take a while.';
@@ -187,23 +191,25 @@ class BabylonEngine {
 		this.splat.scaling.set(1, 1, 1);
 		this.splat.rotationQuaternion = Quaternion.FromEulerVector(new Vector3(0, 0, 0));
 
-		this.videoEngine = new VideoEngine(() => {
-			this.alignPlane('video engine callback');
-		});
+		if (this.showVideo) {
+			this.videoEngine = new VideoEngine(() => {
+				this.alignPlane('video engine callback');
+			});
 
-		this.videoTexture = new VideoTexture(
-			'vt',
-			this.videoEngine!.video,
-			this.scene,
-			false,
-			false,
-			Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
-			{
-				autoPlay: true,
-				independentVideoSource: true,
-				autoUpdateTexture: true,
-			},
-		);
+			this.videoTexture = new VideoTexture(
+				'vt',
+				this.videoEngine!.video,
+				this.scene,
+				false,
+				false,
+				Constants.TEXTURE_BILINEAR_SAMPLINGMODE,
+				{
+					autoPlay: true,
+					independentVideoSource: true,
+					autoUpdateTexture: true,
+				},
+			);
+		}
 
 		// this is the plane that will show the RTT.
 		this.plane = MeshBuilder.CreatePlane('plane', { width: 1, height: 1 }, this.scene);
@@ -303,4 +309,4 @@ class BabylonEngine {
 	}
 }
 
-new BabylonEngine();
+new BabylonEngine(false);
