@@ -209,6 +209,8 @@ class BabylonEngine {
 					autoUpdateTexture: true,
 				},
 			);
+		} else {
+			(document.getElementById("facingModeButton") as HTMLElement).hidden = true;
 		}
 
 		// this is the plane that will show the RTT.
